@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+ <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+{% endblock %}
+{% block content %}
+
+  
+
+
+<div class="page-header">
+    <div class="row">
+    <div class="col-sm-12">
+    <h3 class="page-title">Extrait de Paiement</h3>
+    </div>
+    </div>
+    </div>
+    
+    <div class="row">
+    <div class="col-md-12">
+        <div class="card text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card text-black">
+                          <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                    <label style="color: black;">Numero Facture</label>
+                                    <input type="text" id="numlicence" required name="numlicence" class="form-control">
+                                    </div>
+                                </div> 
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                    <label style="color: black;">Date debut</label>
+                                    <div class="cal-icon">
+                                        <input class="form-control datetimepicker" required id="date_debut" value="{% now 'Y-m-d' %}" name="dt" type="text">
+                                    </div>
+                                      </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                    <label style="color: black;">Date Fin</label>
+                                    <div class="cal-icon">
+                                    <input class="form-control datetimepicker" required id="date_fin" value="{% now 'Y-m-d' %}" name="dt" type="text">
+                                    </div>
+                                    </div>
+                                </div> 
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <button type="button" class="btn btn-primary" id='btnafficher'>Afficher</button>
+                                    <button type="button" class="btn btn-primary" id='btnimprimer'>Imprimer</button>
+                                </div> 
+                            </div>
+                          </div>
+                        </div>
+                    </div>                        
+                </div>
+
+              <div class="row">
+                  <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-center table-hover datatable" id="tbl_extrait">
+                        <thead class="thead-light">
+                        <tr>
+                        <th width="50px">id</th>
+                        <th width="200px">Date Paie.</th>
+                        <th width="200px">Autorisé par</th>
+                        <th width="200px">N° Paiement</th>
+                        <th width="200px">N° Licences</th>
+                        <th width="200px">Devise</th>
+                        <th width="200px">Montant</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          
+                        </tbody>
+                        </table>
+                        </div>
+                  </div>
+                
+      
+              </div>
+            </div>
+          </div>
+    </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+       
+        $("#tbl_consultation").DataTable({
+            "bProcessing":true,
+            "pageLength": 10, 
+            "bDestroy":true 
+        });
+
+        $("#btnimprimer").click(function(){
+            if ($("#date_debut").val()!='' && $("#date_fin").val()!='' && $("#numlicence").val()!='') {
+                if ($("#date_debut").val() > $("#date_fin").val()) {
+                    $.toast({
+                                    heading: 'Message',
+                                    text: "la date debut doit etre egale ou inferieure à la date fin",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+                   });
+                }
+                else{
+                    var locationstring="/decla/printextrait/"+ $("#date_debut").val() + "/" + $("#date_fin").val() + "/" + $("#numlicence").val();
+                    window.location.href=(locationstring);
+                }
+            }
+            else{
+                $.toast({
+                                    heading: 'Message',
+                                    text: "verifiez bien les zones",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+                   });
+            }
+        });
+
+
+
+        $("#btnafficher").click(function () {
+            if ($("#date_debut").val()=='' || $("#date_fin").val()=='' || $("#numlicence").val()=='') {
+                $.toast({
+                                    heading: 'Message',
+                                    text: "verifiez bien les champs",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+                   });
+            }
+            else{
+                if ($("#date_debut").val() > $("#date_fin").val()) {
+                    $.toast({
+                                    heading: 'Message',
+                                    text: "la date debut doit etre egale ou inferieure à la date fin",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+                   });
+                }
+                else{
+                    afficher($("#date_debut").val(),$("#date_fin").val(),$("#numlicence").val());
+                }
+            }
+            
+        });
+
+
+
+        if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    } 
+        
+    
+
+
+
+////________________________________valider licence_____________________________________
+$('body').delegate('.delete','click',function(e){
+    var idd=$(this).data('id');
+    $.ajax({
+            url:"{% url 'deletepaie' %}",
+            type:"POST",
+            data:{
+                id:idd,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                   
+                }
+            },
+            error:function(data){
+                alert(data.success);
+            }
+        });
+});
+
+}); 
+
+function afficher(params,params2,params3) {
+    var locationstring="/declaration/afficherextrai/"+params+ "/" + params2 + "/" + params3;
+    var otableau=$('#tbl_extrait').DataTable({
+                 "bProcessing":true,
+                 "sAjaxSource":locationstring,
+                 "columns":[
+                     {"data":'id'},
+                     {"data":'datepaie'},
+                     {"data":'name_ordre'},
+                     {"data":'numfact'},
+                     {"data":'id_declaration__num_valid'},
+                     {"data":'id_declaration__monnaie'},
+                     {"data":'montpaie'},
+                 ],
+                 "pageLength": 10, 
+                 "bDestroy":true
+             });
+    
+}
+</script>
+{% endblock %}

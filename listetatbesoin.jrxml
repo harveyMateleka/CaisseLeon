@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.13.0.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="fiche" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isFloatColumnFooter="true" uuid="cb2b72a0-3d4c-4330-bc37-38ae3545017a">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="adaptersqlservercaisse"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="177"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="817"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<import value="javax.imageio.ImageIO"/>
+	<import value="org.apache.commons.codec.binary.Base64"/>
+	<subDataset name="locataire" uuid="dba9aae5-cc88-4366-b362-db40fc94d551">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="adaptersqlserverimmo"/>
+		<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="258"/>
+		<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="742"/>
+		<parameter name="contrat" class="java.lang.Integer"/>
+		<parameter name="ddl" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select Modepaiement as modepaie,DebutContrat as datedebut,LoyerMensuel as loyer,
+GarantirLocative as garantie,devise,NomLocataire as nom,
+DesiMaison as denomination,DesiParcelle as COLUMN_8,(select sum(loy-paie) as solde from (select 0 as paie,montant as loy,datefac 
+from facloyer where idcont=$P{contrat}
+union
+
+select montant as paie,0 as loy,datemvt as datefac 
+from mouvement
+where idcontrat=$P{contrat}
+
+) as facture where datefac < CONVERT(datetime, $P{ddl}, 101) )as solde
+ from contrat 
+ inner join locataire on contrat.idloc=locataire.idloc
+ inner join maison on maison.idmaison=contrat.idmaison
+ inner join parcelle on maison.idparc=parcelle.idparc 
+ where contrat.id=$P{contrat}]]>
+		</queryString>
+		<field name="modepaie" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.label" value="modepaie"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="datedebut" class="java.sql.Timestamp">
+			<property name="com.jaspersoft.studio.field.label" value="datedebut"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="loyer" class="java.lang.Double">
+			<property name="com.jaspersoft.studio.field.label" value="loyer"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="garantie" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="garantie"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="devise" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="devise"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="nom" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="nom"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="locataire"/>
+		</field>
+		<field name="denomination" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="denomination"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_maison"/>
+		</field>
+		<field name="COLUMN_8" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="COLUMN_8"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_parcelle"/>
+		</field>
+		<field name="solde" class="java.lang.Double">
+			<property name="com.jaspersoft.studio.field.label" value="solde"/>
+		</field>
+		<variable name="reporsolde" class="java.lang.Double">
+			<variableExpression><![CDATA[($F{solde}==null)?0:$F{solde}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="dtd" class="java.lang.String"/>
+	<parameter name="dtf" class="java.lang.String"/>
+	<parameter name="departement" class="java.lang.Integer"/>
+	<parameter name="location" class="java.lang.Integer"/>
+	<queryString language="SQL">
+		<![CDATA[select item,qte,prix,demandeur,operation_etatbesoin.motif,operation_etatbesoin.id,operation_etatbesoin.devise,operation_etatbesoin.datemvt,operation_departement.libelle as departement,auth_user.last_name as superviseur,
+(select operation_caisse.devise from operation_caisse where operation_caisse.etatbesoin_id=c.etatbesoin_id )as devisecaiss,
+(select operation_caisse.Montant from operation_caisse where operation_caisse.etatbesoin_id=c.etatbesoin_id )as Montantcaiss,
+(select operation_caisse.motif from operation_caisse where operation_caisse.etatbesoin_id=c.etatbesoin_id )as Motifcaiss,
+(select operation_caisse.id from operation_caisse where operation_caisse.etatbesoin_id=c.etatbesoin_id )as Idcaiss,
+(select operation_caisse.DateMvt from operation_caisse where operation_caisse.etatbesoin_id=c.etatbesoin_id )as DateMvtcaisse,
+(select operation_caisse.lettre from operation_caisse where operation_caisse.etatbesoin_id=c.etatbesoin_id )as Lettrecaiss,
+(select operation_etatbesoinimage.imagebs from operation_caisse inner join operation_etatbesoinimage on operation_etatbesoinimage.caisse_id=operation_caisse.id where operation_caisse.etatbesoin_id=c.etatbesoin_id )as imagebs,
+(select operation_userimage.imagebs from operation_caisse inner join operation_userimage on operation_caisse.user_id=operation_userimage.user_id where operation_caisse.etatbesoin_id=c.etatbesoin_id )as imageadmin,
+(select cc.last_name from operation_caisse inner join auth_user as cc on operation_caisse.user_id=cc.id where operation_caisse.etatbesoin_id=c.etatbesoin_id )as last_name,
+(select operation_userimage.imagebs from operation_etatbesoin inner join operation_userimage on operation_etatbesoin.userAdmi_id=operation_userimage.user_id where operation_etatbesoin.id=c.etatbesoin_id )as imagevalida,
+(select operation_userimage.imagebs from operation_userimage where operation_userimage.user_id=auth_user.id )as imagesup,
+(select b.last_name from operation_etatbesoin inner join auth_user as b on operation_etatbesoin.userAdmi_id=b.id where operation_etatbesoin.id=c.etatbesoin_id )as nomvalida
+ from
+operation_detailetatbesoin
+inner join operation_etatbesoin on operation_detailetatbesoin.etatbesoin_id=operation_etatbesoin.id
+inner join operation_superviseur on operation_superviseur.id=operation_etatbesoin.superviseur_id
+inner join operation_departement on operation_departement.id=operation_superviseur.departement_id
+inner join auth_user on auth_user.id=operation_superviseur.user_id
+inner join operation_caisse c on c.etatbesoin_id=operation_etatbesoin.id
+
+where c.DateMvt between  $P{dtd}  and  $P{dtf} and c.departement_id= $P{departement}  and c.location_id= $P{location} ]]>
+	</queryString>
+	<field name="item" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="item"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_detailetatbesoin"/>
+	</field>
+	<field name="qte" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="qte"/>
+	</field>
+	<field name="prix" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="prix"/>
+	</field>
+	<field name="demandeur" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="demandeur"/>
+	</field>
+	<field name="motif" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="motif"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_etatbesoin"/>
+	</field>
+	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="devise" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="devise"/>
+	</field>
+	<field name="datemvt" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="datemvt"/>
+	</field>
+	<field name="departement" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="departement"/>
+	</field>
+	<field name="superviseur" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="superviseur"/>
+	</field>
+	<field name="devisecaiss" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="devisecaiss"/>
+	</field>
+	<field name="Montantcaiss" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="Montantcaiss"/>
+	</field>
+	<field name="Motifcaiss" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="Motifcaiss"/>
+	</field>
+	<field name="Idcaiss" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="Idcaiss"/>
+	</field>
+	<field name="DateMvtcaisse" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="DateMvtcaisse"/>
+	</field>
+	<field name="Lettrecaiss" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="Lettrecaiss"/>
+	</field>
+	<field name="imagebs" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imagebs"/>
+	</field>
+	<field name="imageadmin" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imageadmin"/>
+	</field>
+	<field name="last_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="last_name"/>
+	</field>
+	<field name="imagevalida" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imagevalida"/>
+	</field>
+	<field name="imagesup" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imagesup"/>
+	</field>
+	<field name="nomvalida" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="nomvalida"/>
+	</field>
+	<variable name="tot" class="java.lang.Double" resetType="Group" resetGroup="Groupe1" calculation="Sum">
+		<variableExpression><![CDATA[$F{qte}*$F{prix}]]></variableExpression>
+	</variable>
+	<group name="Groupe1" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{id}]]></groupExpression>
+		<groupHeader>
+			<band height="73">
+				<staticText>
+					<reportElement x="77" y="22" width="412" height="21" uuid="cbb6a254-c733-4d0a-a354-7d3d61a40cdb"/>
+					<textElement textAlignment="Center">
+						<font fontName="FontCandara" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[LEON HOTEL | 41,  AV LUAMBO MAKIADI, Kinshasa/gOMBE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="85" y="41" width="412" height="21" uuid="d84ae000-396d-4428-9bdc-3d193591cd83"/>
+					<textElement textAlignment="Center">
+						<font fontName="FontCandara" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[RCCM14-B-2299 ID.NAT. N39710B NIF A0705328A]]></text>
+				</staticText>
+				<line>
+					<reportElement x="43" y="67" width="472" height="1" uuid="5e6705fa-01d2-4c73-946d-a4f3c4022c7c"/>
+				</line>
+				<staticText>
+					<reportElement x="143" y="6" width="280" height="21" uuid="047cc1c2-ab03-4fb4-9cf6-067a9abefb2b"/>
+					<textElement textAlignment="Center">
+						<font fontName="FontCandara" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[MILTEX S.A.R.L.U]]></text>
+				</staticText>
+				<textField pattern="MMMMM dd, yyyy">
+					<reportElement x="437" y="5" width="84" height="22" uuid="d1e625c3-890d-4b09-b9f9-22d23a8037b8"/>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<textField pattern="HH:mm">
+					<reportElement x="516" y="5" width="45" height="22" uuid="8238c5a5-88ac-469b-8bcf-1ad86c17822b"/>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="89">
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				<staticText>
+					<reportElement x="80" y="19" width="290" height="27" uuid="59a861da-5b9b-48ee-abed-58364ba6e87d"/>
+					<textElement textAlignment="Center">
+						<font fontName="Monospaced" size="19" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[BON DE SORTIE CAISSE N°]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="155" y="50" width="70" height="19" backcolor="#E0D8D7" uuid="ce31ea5c-3410-4434-8d96-3c3461d67096"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="SansSerif" size="13" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Montant :]]></text>
+				</staticText>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Transparent" x="231" y="50" width="119" height="19" backcolor="#E0D8D7" uuid="d5b977ec-06b2-4497-a91a-569d3386fa44"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Montantcaiss}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="347" y="19" width="64" height="27" uuid="ddc34004-8a04-4663-9e58-2e3d530329e4"/>
+					<textElement textAlignment="Center">
+						<font fontName="Monospaced" size="19" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Idcaiss}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Transparent" x="350" y="50" width="80" height="19" backcolor="#E0D8D7" uuid="379b9880-b5dd-4064-b7a7-850470a0e0cb"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{devisecaiss}]]></textFieldExpression>
+				</textField>
+				<textField pattern="M/d/yyyy">
+					<reportElement mode="Transparent" x="400" y="5" width="113" height="19" backcolor="#E0D8D7" uuid="cfac19b1-231a-4542-8480-b9bdba5ff4d6"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DateMvtcaisse}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="20" y="70" width="234" height="19" backcolor="#E0D8D7" uuid="bfffafc5-26f4-47b5-af02-73d71742780b"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Montant accordé (en toutes lettres) :]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true">
+					<reportElement mode="Transparent" x="254" y="70" width="290" height="19" backcolor="#E0D8D7" uuid="23991045-ac71-4c7c-9109-43d882f9fe9f"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Lettrecaiss}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="350" y="5" width="50" height="19" backcolor="#E0D8D7" uuid="8d4f4a58-7887-44ad-ba05-acc6cfe37073"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="SansSerif" size="13" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Date :]]></text>
+				</staticText>
+			</band>
+			<band height="71">
+				<staticText>
+					<reportElement mode="Transparent" x="1" y="0" width="120" height="19" backcolor="#E0D8D7" uuid="93d14031-f2e8-43c5-a46e-3dd9eb73f1bc"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Motif de dépense :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="121" y="0" width="432" height="30" backcolor="#E0D8D7" uuid="eeca9218-4ded-4778-a186-ebb1ebdb03d6"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Motifcaiss}]]></textFieldExpression>
+				</textField>
+				<rectangle>
+					<reportElement x="11" y="32" width="534" height="35" uuid="0b155dd9-f41c-4f22-8a4e-e0b2e9ca5f4a"/>
+				</rectangle>
+				<staticText>
+					<reportElement mode="Transparent" x="15" y="39" width="100" height="19" backcolor="#E0D8D7" uuid="0cb87350-a2cb-4477-99c4-f438b31597fe"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Le Bénéficiaire :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="115" y="39" width="429" height="19" backcolor="#E0D8D7" uuid="fe7c6341-47bb-4628-ae3a-f4b46df71d2c"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{demandeur}]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="111">
+				<image>
+					<reportElement mode="Transparent" x="7" y="21" width="133" height="85" backcolor="#FFFFFF" uuid="a89de15f-cdab-4b0e-b488-2705afdafbc6"/>
+					<imageExpression><![CDATA[ImageIO.read(new ByteArrayInputStream(Base64.decodeBase64($F{imageadmin}.getBytes("UTF-8"))))]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement mode="Transparent" x="1" y="0" width="90" height="19" backcolor="#E0D8D7" uuid="f1300a86-52a3-4c30-b983-6ba6bbb87cc8"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Le Caissier(e)]]></text>
+				</staticText>
+				<image>
+					<reportElement x="350" y="20" width="122" height="85" uuid="a8c2686e-f2dc-40bf-95df-00a708e402ba"/>
+					<imageExpression><![CDATA[ImageIO.read(new ByteArrayInputStream(Base64.decodeBase64($F{imagebs}.getBytes("UTF-8"))))]]></imageExpression>
+				</image>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="7" y="69" width="89" height="14" uuid="16ee3cb4-9ee4-41f7-bca7-c0dc8faf6743">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement>
+						<font fontName="Candara" size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{last_name}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="332" y="0" width="214" height="19" backcolor="#E0D8D7" uuid="30243fe3-7c7a-4c8c-b55f-34ddc7436d35"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Bénéficaire ou Mandataire]]></text>
+				</staticText>
+				<frame>
+					<reportElement mode="Transparent" x="3" y="-160" width="552" height="266" backcolor="rgba(217, 215, 215, 0.23137255)" uuid="9af4b912-9b36-41d0-95c0-6fd6b3d908fb"/>
+					<box>
+						<pen lineWidth="1.0"/>
+					</box>
+				</frame>
+			</band>
+			<band height="129">
+				<staticText>
+					<reportElement x="100" y="2" width="260" height="38" uuid="b47cb29e-57ec-44aa-bd2f-e03ca0150cb8"/>
+					<textElement textAlignment="Center">
+						<font fontName="Monospaced" size="19" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[ETAT DE BESOINS N°]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="327" y="2" width="86" height="38" uuid="f25d94c2-87c8-4468-b1b9-7f5fcf8bf42d"/>
+					<box leftPadding="5"/>
+					<textElement textAlignment="Left">
+						<font fontName="Monospaced" size="19" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="4" y="41" width="148" height="19" backcolor="#E0D8D7" uuid="2d4a6b7b-725a-4d83-a429-87ee7eea37d1"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Service                              :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="158" y="40" width="321" height="19" backcolor="#E0D8D7" uuid="21fcde20-cbda-482f-a371-87a5f5d450bb"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{departement}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="3" y="62" width="148" height="19" backcolor="#E0D8D7" uuid="8b2d5898-9510-40c6-99fa-1ac1d325e539"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Date                                  :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="155" y="62" width="321" height="19" backcolor="#E0D8D7" uuid="0b7ab5ae-6afd-40d1-813b-e1717ef36bbe"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{datemvt}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="3" y="81" width="148" height="19" backcolor="#E0D8D7" uuid="96fc9b07-1c1d-45bf-8498-558827dbc524"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Nom du demandeur        :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="154" y="81" width="321" height="19" backcolor="#E0D8D7" uuid="87478f14-af6e-434c-ae41-c9922a5ecd3f"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{demandeur}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="1" y="100" width="148" height="19" backcolor="#E0D8D7" uuid="4bdb2a43-41f5-4081-a90d-8c96d186bd19"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Nom du chef de service :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="152" y="100" width="321" height="19" backcolor="#E0D8D7" uuid="fbda8f6e-67f0-471b-a054-a475c581419b"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{superviseur}]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="64">
+				<rectangle>
+					<reportElement x="7" y="0" width="547" height="59" uuid="d28330f6-599e-4f40-a422-ab51ab4ca6ad"/>
+				</rectangle>
+				<staticText>
+					<reportElement mode="Transparent" x="11" y="10" width="70" height="19" backcolor="#E0D8D7" uuid="14feb2b1-3034-4d81-a9df-e379c02da421"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[BESOINS :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="89" y="11" width="454" height="39" backcolor="#E0D8D7" uuid="1b6e466c-37d7-4c80-9d7d-855108cb494e"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{motif}]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="22">
+				<staticText>
+					<reportElement mode="Opaque" x="0" y="2" width="40" height="19" backcolor="#E0D8D7" uuid="44eaf10a-1e29-4237-b4eb-b59c10f6a774"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="FontCandara" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="40" y="2" width="250" height="19" backcolor="#E0D8D7" uuid="09726b88-43d0-4786-918a-98e69423de8d"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Articles]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="290" y="2" width="60" height="19" backcolor="#E0D8D7" uuid="635310eb-2499-4598-b589-992c55e081dc"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font fontName="SansSerif" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Quantite]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="350" y="2" width="85" height="19" backcolor="#E0D8D7" uuid="aec673d5-8e96-4a5e-a4ce-03feb56222a3"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font fontName="SansSerif" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[P.U]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="435" y="2" width="119" height="19" backcolor="#E0D8D7" uuid="dfaa5a6e-ade6-4b7c-9a3d-8e94e7f9a26b"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font fontName="SansSerif" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[P.T]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<staticText>
+					<reportElement mode="Opaque" x="216" y="1" width="340" height="19" backcolor="#E0D8D7" uuid="5cf620ee-dc78-4f06-b734-489117972e13"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="SansSerif" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total]]></text>
+				</staticText>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="365" y="1" width="154" height="19" backcolor="#E0D8D7" uuid="424a26ce-c981-49c0-b0b2-d654ff11fb64"/>
+					<box rightPadding="5">
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="SansSerif" size="14" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{tot}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="519" y="1" width="39" height="19" backcolor="#E0D8D7" uuid="0cf7d63f-f2ca-4c38-b38b-11460903f210"/>
+					<box rightPadding="5">
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="SansSerif" size="14" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{devise}]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="126">
+				<image>
+					<reportElement mode="Transparent" x="15" y="30" width="133" height="85" backcolor="#FFFFFF" uuid="e79e02d9-bef3-4639-af04-7a305bfc1ed1"/>
+					<imageExpression><![CDATA[ImageIO.read(new ByteArrayInputStream(Base64.decodeBase64($F{imagesup}.getBytes("UTF-8"))))]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement mode="Transparent" x="12" y="10" width="179" height="19" backcolor="#E0D8D7" uuid="26071b98-fc8e-4578-afdd-3fa00b403b57"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Signature du chef de service]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="33" y="76" width="89" height="14" uuid="1f5acd20-c055-4488-a4f0-ea450143328c">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement>
+						<font fontName="Candara" size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{superviseur}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="403" y="11" width="120" height="19" backcolor="#E0D8D7" uuid="84e3e89a-6586-4520-aff2-4366dc38ccf5"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Pour approbation]]></text>
+				</staticText>
+				<image>
+					<reportElement mode="Transparent" x="400" y="31" width="133" height="85" backcolor="#FFFFFF" uuid="ca89821d-a9bf-43fb-8177-49acb476fdc5"/>
+					<imageExpression><![CDATA[ImageIO.read(new ByteArrayInputStream(Base64.decodeBase64($F{imagevalida}.getBytes("UTF-8"))))]]></imageExpression>
+				</image>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="410" y="73" width="89" height="14" uuid="fcee551f-cfcf-4323-84ba-4677fc6044d5">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement>
+						<font fontName="Candara" size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{nomvalida}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="40" height="20" uuid="e6f3f5c1-75e1-4419-8caf-c4225d08f95e"/>
+				<box leftPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Groupe1_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="290" y="0" width="60" height="20" uuid="0ef79e1e-f76e-47df-9ad5-cd3dd2ba08b5"/>
+				<box rightPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qte}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="40" y="0" width="250" height="20" uuid="040ef10d-7e6f-4e20-8cb0-56140dfe81e3">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3760566a-a2b0-4eaf-8f04-f059748ac6f9"/>
+				</reportElement>
+				<box leftPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{item}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="350" y="0" width="85" height="20" uuid="3490a994-54e9-4a6e-8775-92c90b04c0a2"/>
+				<box rightPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prix}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="435" y="0" width="119" height="20" uuid="100d0aef-553c-479a-9a45-4c1e3a59b30f"/>
+				<box rightPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qte}*$F{prix}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

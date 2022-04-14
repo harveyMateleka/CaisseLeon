@@ -1,0 +1,705 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+ <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+{% endblock %}
+{% block content %}
+
+<button id="show_besoin" data-bs-toggle="modal" data-bs-target="#edit_category" style="display: none"></button>
+<div id="edit_category" class="modal custom-modal fade" role="dialog">
+<div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Liste Etat Besoins</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+<div class="row">
+<div class="col-sm-12">
+    <div class="card card-table">
+    <div class="card-body">
+    <div class="table-responsive">
+    <table class="table table-center table-hover datatable" id="tabloetat" style="width">
+    <thead class="thead-light">
+    <tr>
+    <th width="50px">#</th>
+    <th width="200px">Date</th>
+    <th width="100px">Service</th>
+    <th width="150px">Demandeur</th>
+    <th width="700px">Motif</th>
+    <th width="100px">Devise</th>
+    <th width="100px">Total</th>
+    <th width="60px" class="text-end">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+    </table>
+    </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="page-header">
+<div class="row">
+<div class="col-sm-12">
+<h3 class="page-title">{{ libelle }}</h3>
+
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<div class="card" style="background-color: #2f3b49;color:white;">
+<div class="card-body">
+<form action="#" id="frmadd" name="frmadd" method="post">
+{% csrf_token %}
+<textarea style="display:none;" name="sigImageData" id="sigImageData"  rows="20" cols="50"></textarea>
+<div class="row" >
+<div class="col-md-6">
+<div class="row">
+<div class="col-md-6">
+<div class="form-group">
+<label>Service:</label>
+<select class="select" required name="location" id="location">
+
+    {% for departement in departements %}
+    <option value="{{ departement.id }}">{{ departement.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Référentiel:</label>
+<select class="select" required name="referentiel" id="referentiel">
+
+    {% for referentiel in referentiels %}
+    <option value="{{ referentiel.id }}">{{ referentiel.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-6">
+
+<div class="form-group">
+<label>Devise:</label>
+    <select class="form-control" name="devise" id="devise">
+
+    <option value="CDF">CDF</option>
+    <option value="USD">USD</option>
+    <option value="EURO">EURO</option>
+    <option value="CFA">CFA</option>
+
+
+</select>
+</div>
+</div>
+    <div class="col-md-6">
+
+<div class="form-group">
+<label>Taux:</label>
+   <input type="text" id="taux" value="{{ tauxchange.0.taux }}" required name="taux" class="form-control">
+<input type="hidden" id="operation" name="operation" value="{{ catlibelle }}"  class="form-control">
+<input type="hidden" id="demandeur" name="demandeur"  class="form-control">
+
+
+</select>
+</div>
+</div>
+</div>
+
+<div class="form-group">
+<label>Montant:</label>
+<input type="text" id="mtn" required name="mtn" class="form-control">
+<input type="hidden" id="idmvt" value="0" name="idmvt"  class="form-control">
+<input type="hidden" id="idbesoin" value="0" name="idbesoin"  class="form-control">
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Date:</label>
+<div class="cal-icon">
+<input class="form-control datetimepicker" readonly id="dt" value="{{ datemvt|date:"Y-m-d" }}" name="dt" type="text">
+</div>
+</div>
+<div class="form-group">
+<label>Libelle:</label>
+<textarea rows="5" cols="5" required class="form-control" id="motif" name="motif"></textarea>
+</div>
+<div class="text-end mt-4" >
+    {% if catlibelle == 'S' %}
+         {% if perms.operation.etatbesoin %}
+            <button type="button" id="btnbesoin" style="color:white" class="btn btn-info">Etat Besoins</button>
+         {% endif %}
+    {% endif %}
+
+{% if catlibelle == 'S' %}
+    {% if perms.operation.sortieajout %}
+        <button type="button" style="color:white" class="btn btn-primary" onclick="StartSign()"><span id="btnv" role="status"></span> Valider</button>
+    {% endif %}
+{% elif catlibelle == 'E' %}
+    {% if perms.operation.entreeajout %}
+        <button type="button" style="color:white" class="btn btn-primary" onclick="StartSign()"><span id="btnv" role="status"></span> Valider</button>
+    {% endif %}
+{% endif %}
+
+<button type="reset" style="color:white" class="btn btn-warning">Annuler</button>
+
+<button type="button" style="color:white" onclick="javascript:window.location.href='{% url 'operation:listmvt' %}?id={{ catlibelle }}&libelle={{ libelle }}'" class="btn btn-info">Fermer</button>
+</div>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+    {% include 'operation/updatemvt.html' %}
+
+{% endblock %}
+
+
+{% block script %}
+    
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+        <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+
+    <script type="text/javascript">
+	var imgWidth;
+	var imgHeight;
+	function StartSign()
+	 {
+	    var message = { "firstName": "", "lastName": "", "eMail": "", "location": "", "imageFormat": 1, "imageX": 0, "imageY": 0, "imageTransparency": false, "imageScaling": false, "maxUpScalePercent": 0.0, "rawDataFormat": "ENC", "minSigPoints": 25 };
+		document.addEventListener('SigCaptureWeb_SignResponse', SignResponse, false);
+		var messageData = JSON.stringify(message);
+		var element = document.createElement("SigCaptureWeb_ExtnDataElem");
+		element.setAttribute("SigCaptureWeb_MsgAttribute", messageData);
+		document.documentElement.appendChild(element);
+		var evt = document.createEvent("Events");
+		evt.initEvent("SigCaptureWeb_SignStartEvent", true, false);
+		element.dispatchEvent(evt);
+    }
+	function SignResponse(event)
+	{
+	    var str = event.target.getAttribute("SigCaptureWeb_msgAttri");
+		var obj = JSON.parse(str);
+		SetValues(obj);
+	}
+	function SetValues(objResponse)
+	{
+        var obj = JSON.parse(JSON.stringify(objResponse));
+	    //var ctx = document.getElementById('cnv').getContext('2d');
+
+			if (obj.errorMsg != null && obj.errorMsg!="" && obj.errorMsg!="undefined")
+			{
+
+                Swal.fire({
+                      icon: 'error',
+                      title: 'Informmation',
+                      text: obj.errorMsg
+                    })
+            }
+            else
+			{
+                if (obj.isSigned)
+				{
+
+                     document.frmadd.sigImageData.value= obj.imageData;
+
+                    if($('#idbesoin').val()=="0"){
+                        Swal.fire({
+                              title: 'Entrez le nom du bénéficiaire',
+                              input: 'text',
+                              inputAttributes: {
+                                autocapitalize: 'on'
+                              },
+                              showCancelButton: true,
+                              confirmButtonText: 'Ok',
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                  document.frmadd.demandeur.value=result.value;
+                                  $('#frmadd').submit();
+                              }
+                            })
+                    }else{
+                           $('#frmadd').submit();
+                    }
+
+                    {#  var all=true#}
+                    {#  $("form input,form textarea").each(function (index, value) {#}
+                    {#         #}
+                    {#        all = all & ($(value).val().length > 0);#}
+                    {#    })#}
+                    {##}
+                    {#if(all)#}
+
+                    {#else{#}
+                    {#    Swal.fire({#}
+                    {#  icon: 'error',#}
+                    {#  title: 'Informmation',#}
+                    {#  text: "Champs Obligatoire"#}
+                    {#})#}
+                    {#}#}
+
+
+                }else{
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Informmation',
+                      text: "Signature Obligatoire"
+                    })
+                }
+            }
+    }
+
+
+</script>
+    <script>
+
+                  $(document).ready(function() {
+
+                                      // Select 2
+                    if ($('.select').length > 0) {
+                        $('.select').select2({
+                            //minimumResultsForSearch: -1,
+                            width: '100%'
+                        });
+                    }
+
+                     affiche();
+                     $('#tabloetat').DataTable({
+                               // "bFilter": false,
+                            });
+
+
+
+                    // Datetimepicker
+
+                    if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+
+                    $("button[type='reset']").closest('form').on('reset', function(event) {
+
+                      // executes before the form has been reset
+                        //readonly
+                        $('#idbesoin').val('0');
+                        $('#idmvt').val('0');
+                         $('#mtn').removeAttr("readonly") ;
+                         //$('#dt').removeAttr("readonly") ;
+                          $("#location > option").each(function() {
+
+                                      $(this).removeAttr("disabled")
+                                        //alert(this.text + ' ' + this.value);
+                                    });
+
+                                $("#devise > option").each(function() {
+
+                                        $(this).removeAttr("disabled")
+                                        //alert(this.text + ' ' + this.value);
+                                    });
+                         //$('#location').removeAttr("disabled") ;
+                         //$('#devise').removeAttr("disabled") ;
+                      setTimeout(function() {
+                        // executes after the form has been reset
+
+                      }, 1);
+
+                    });
+
+                    $('#frmadd').submit(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                            url: '{% url 'operation:mvt' %}',
+                        type: 'POST',
+                         data:$(this).serialize(),
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+                                if($('#idbesoin').val()!="0"){
+                                    pdf($('#idbesoin').val());
+                                }
+
+                                 $('#motif').val('');
+                                 $('#mtn').val('');
+                                 $('#idmvt').val('0');
+                                 $('#idbesoin').val('0');
+
+                                 $("#location > option").each(function() {
+
+                                      $(this).removeAttr("disabled")
+                                    });
+
+                                $("#devise > option").each(function() {
+
+                                        $(this).removeAttr("disabled")
+
+                                    });
+                                affiche();
+                                afficheetat();
+                                impresson(data.bon);
+
+
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+                            alert(data)
+                            }
+                        });
+
+                         });
+
+
+
+                    //updateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+                      $(document).on("click", ".open-edite", function () {
+
+                                $('#idmvt').val($(this).data('id'));
+                                $('#motif').val($(this).data('motif'));
+                                $('#mtn').val($(this).data('mtn'));
+                                $('#referentiel').val($(this).data('referentiel'));
+                                $('#referentiel').change();
+                                $('#dt').val($(this).data('dt'));
+                                $('#taux').val($(this).data('taux'));
+                                $('#devise').val($(this).data('devise'));
+                                $('#location').val($(this).data('departement'));
+                                $('#location').change();
+
+
+
+                        });
+                      $(document).on("click", ".open-delete", function () {
+
+                                $('#idmvtsup').val($(this).data('id'));
+                                $('#lblsup').html($(this).data('libelle'));
+
+
+                        });
+                      $(document).on("click", ".open-show", function () {
+
+                                $('#idbesoin').val($(this).data('idete'));
+                                $('#motif').val($(this).data('motif'));
+                                $('#dt').val($(this).data('date'));
+                                $('#devise').val($(this).data('devise'));
+                                var dv=$(this).data('devise');
+                                $('#devise').change();
+                                $('#mtn').val($(this).data('mtn'));
+
+                                $('#location').val($(this).data('departement'));
+                                var loc=$(this).data('departement');
+                                $('#location').change();
+
+                                //readonly
+                                $('#dt').attr("readonly","true");
+
+
+                                $("#location > option").each(function() {
+
+                                       if(this.value!=loc) $(this).attr("disabled","true")
+                                        //alert(this.text + ' ' + this.value);
+                                    });
+
+                                $("#devise > option").each(function() {
+
+                                       if(this.value!=dv) $(this).attr("disabled","true")
+                                        //alert(this.text + ' ' + this.value);
+                                    });
+
+                                //$('#location').attr("disabled","true");
+                                //$('#devise').attr("disabled","true");
+
+                                $('#mtn').attr("readonly","true");
+
+                                $('.btn-close').click();
+
+
+
+                        });
+                      $('#btnsupression').click(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                        url: '{% url 'operation:deletemvt' %}',
+                        type: 'POST',
+                         data: {
+                            'operation': $('#operation').val(),
+                            'id': $('#idmvtsup').val(),
+                             'csrfmiddlewaretoken':'{{ csrf_token }}'
+                      },
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                $('#idmvtsup').val('');
+                                $('#lblsup').html('');
+                                $('#delete_category').click();
+                                affiche();
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+                      $('#btnbesoin').click(function (e) {
+                         e.preventDefault();
+                         afficheetat();
+                         $('#show_besoin').click();
+                         $('#tabloetat').css("width","");
+
+                         });
+                    //updateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+
+                  });
+
+                  
+                  function pdf(id) {
+                       $.ajax({
+                        url: '{% url 'operation:pdfetat' %}',
+                        type: 'POST',
+                         data: {
+                            'id': id,
+                             'csrfmiddlewaretoken':'{{ csrf_token }}'
+                      },
+                        async: true,
+                        success: function (data) {
+
+                            if(data.id=="true"){
+
+                                $.toast({
+                                        heading: 'Message',
+                                        text:"Etat besoin Généré !!!",
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+                  }
+                  function affiche()
+                      {
+                      try{
+                      tablo=$('#tablo2').DataTable({
+                        "order":false,
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'operation:getmvtnormal' %}?cat={{ catlibelle }}",
+                      "columns":[
+                           {"data":'id'},
+                          {"data":'datemvt__date'},
+                          {"data":'departement__libelle'},
+                          {"data":'location__libelle'},
+                          {"data":'motif'},
+
+                          {"data":'location__compte'},
+                          {"data":'montant'},
+                          {"data":'devise'},
+
+                          {"data":'id',"render":function (data, type, row, meta){
+
+                                return '{% if catlibelle == 'S' %}{% if perms.operation.sortiemodi %} <a href="#" data-id="'+row.id+'" data-taux="'+row.taux+'" data-referentiel="'+row.location_id+'" data-motif="'+row.motif+'" data-departement="'+row.departement_id+'" data-mtn="'+row.montant+'" data-devise="'+row.devise+'" data-dt="'+row.datemvt__date+'"  class="open-edite btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Modifier</a> {% endif %}{% elif catlibelle == 'E' %}{% if perms.operation.entreemodi %} <a href="#" data-id="'+row.id+'" data-taux="'+row.taux+'" data-referentiel="'+row.location_id+'" data-motif="'+row.motif+'" data-departement="'+row.departement_id+'" data-mtn="'+row.montant+'" data-devise="'+row.devise+'" data-dt="'+row.datemvt__date+'"  class="open-edite btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Modifier</a> {% endif %}{% endif %}{% if catlibelle == 'S' %}{% if perms.operation.sortiesup %} <a href="#" data-id="'+row.id+'" data-libelle="'+row.motif+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete btn btn-sm btn-white text-danger me-2"><i class="far fa-trash-alt me-1"></i>Supprimer</a> {% endif %}{% elif catlibelle == 'E' %}{% if perms.operation.entreesup %} <a href="#" data-id="'+row.id+'" data-libelle="'+row.motif+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete btn btn-sm btn-white text-danger me-2"><i class="far fa-trash-alt me-1"></i>Supprimer</a>{% endif %}{% endif %}'
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){
+
+                      }
+                      }
+
+                   function afficheetat()
+                      {
+                      try{
+                          {#var today = new Date();#}
+                          {#var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();#}
+                          tablo=$('#tabloetat').DataTable({
+                        "order":  [[ 0, "desc" ]],
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'getbesoincaisse' %}",
+                      "columns":[
+                           {"data":'etatbesoin__id'},
+                          {"data":'etatbesoin__datemvt'},
+                          {"data":'etatbesoin__superviseur__departement__libelle'},
+                          {"data":'etatbesoin__demandeur'},
+                          {"data":'etatbesoin__motif'},
+                          {"data":'etatbesoin__devise'},
+                          {"data":'multitot'},
+                          {"data":'etatbesoin__id',"render":function (data, type, row, meta){
+                                //if(row.etatbesoin__datemvt==date){
+                                       return '<a href="#"   data-departement="'+row.etatbesoin__superviseur__departement__id+'" data-mtn="'+row.multitot+'" data-idete="'+row.etatbesoin__id+'" data-motif="'+row.etatbesoin__motif+'" data-demandeur="'+row.etatbesoin__demandeur+'" data-devise="'+row.etatbesoin__devise+'" data-date="'+row.etatbesoin__datemvt+'" class="open-show btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Recuperer</a>'
+                                {#}else{#}
+                                {#      return '<a href="#" class="btn btn-sm btn-white text-danger me-2"><i class="far fa-file me-1"></i> Besoin d\'Activation </a>'#}
+                                {##}
+                                {#}#}
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){}
+
+                       setTimeout(function() {
+
+                             $('#tabloetat').css("width","");
+                        }, 2000);
+
+                      }
+
+
+                      function impresson(bon){
+
+
+                            $('#btnv').attr('class','spinner-border spinner-border-sm mr-2');
+                            var cmp=0;
+
+    $.ajax({
+     url: '{% url 'operation:fac' %}',
+    type: 'POST',
+     data:{
+         'csrfmiddlewaretoken': '{{ csrf_token }}',
+         'bon': bon
+     },
+    success: function(d){
+       if(d=="true"){
+        $('#btnv').attr('class','');
+         //window.open('{{ MEDIA_URL }}fac.pdf');
+          {#//pdf#}
+                                    var iframe = document.createElement('iframe');
+                                    // iframe.id = 'pdfIframe'
+                                    iframe.className='pdfIframe'
+                                    document.body.appendChild(iframe);
+                                    iframe.style.display = 'none';
+                                    iframe.onload = function () {
+                                        setTimeout(function () {
+                                            iframe.focus();
+                                            iframe.contentWindow.print(0);
+                                            // document.body.removeChild(iframe)
+                                        }, 1);
+                                    };
+                                    //add --kiosk --kiosk-printing icone chrome
+                                    //add --kiosk-printing icone chrome
+                                    iframe.src = "{{ MEDIA_URL }}fac.pdf";
+
+                                //pdf
+         }
+
+    },
+    error: function(request, status, err) {
+        $('#btnv').attr('class','');
+        alert((status == "timeout") ? "Timeout" : "error: " + request + status + err);
+    }
+});
+
+
+}
+    </script>
+
+{% endblock %}

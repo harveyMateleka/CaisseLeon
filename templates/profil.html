@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+ <style>
+
+        .delete-btn {
+            position: relative;
+        }
+
+        .delete {
+            display: block;
+            color: #dfdfe2;
+            text-decoration: none;
+            position: absolute;
+            background: #EE2D41;
+            font-weight: bold;
+            padding: 0px 3px;
+            border: 1px solid;
+            top: -6px;
+            left: -6px;
+            font-family: Verdana;
+            font-size: 12px;
+        }
+    </style>
+{% endblock %}
+
+
+
+
+
+
+{% block content %}
+{% if request.user.username %}
+
+<div class="page-header" style="margin-top: 0px">
+<div class="row">
+<div class="col-sm-12">
+     <h3 class="page-title"><span style="float: right;">PROFIL</span></h3>
+
+
+</div>
+</div>
+
+<div class="row">
+
+
+    <div class="col-md-12">
+    <div class="card">
+    <div class="card-header">
+    <h5 class="card-title">Informations</h5>
+    </div>
+    <div class="card-body">
+
+    <form method="POST" id="formsave">
+                                        {% csrf_token %}
+
+    <div class="row form-group">
+    <label for="name" class="col-sm-3 col-form-label input-label">Nom Utilisateur</label>
+    <div class="col-sm-9">
+    <input class="form-control" required name="nom"  id="nom" type="text" value="{{ user.username }}">
+    </div>
+    </div>
+
+    <div class="row form-group">
+    <label for="name" class="col-sm-3 col-form-label input-label">Nouveau mot de passe</label>
+    <div class="col-sm-9">
+    <input type="password" required name="password"
+                                        id="password" class="form-control alert alert-warning">
+    </div>
+    </div>
+
+    <div class="row form-group">
+    <label for="name" class="col-sm-3 col-form-label input-label">Confirme votre mot de passe</label>
+    <div class="col-sm-9">
+    <input type="password" required name="confirmpass"
+                                id="confirmpass" class="form-control alert alert-warning">
+    </div>
+    </div>
+    <div class="row form-group">
+    <label for="email" class="col-sm-3 col-form-label input-label">Email <span class="text-muted">(Facultatif)</span></label>
+    <div class="col-sm-9">
+    <input  class="form-control" name="email"
+                                                              id="email"
+                                                             value="{{ user.email }}"
+                                                              type="email">
+    </div>
+    </div>
+
+        <div class="row form-group">
+    <label for="email" class="col-sm-3 col-form-label input-label">Nom <span class="text-muted">(Facultatif)</span></label>
+    <div class="col-sm-9">
+    <input  class="form-control" name="noml"
+                                                              id="noml"
+                                                             value="{{ user.last_name }}"
+                                                              type="text">
+    </div>
+    </div>
+
+        <div class="row form-group">
+    <label for="email" class="col-sm-3 col-form-label input-label">Prenom <span class="text-muted">(Facultatif)</span></label>
+    <div class="col-sm-9">
+    <input  class="form-control" name="prenom"
+                                                              id="prenom"
+                                                             value="{{ user.first_name }}"
+                                                              type="text">
+    </div>
+    </div>
+
+    <div class="text-end">
+    <button type="submit" class="btn btn-primary">Valider Modification</button>
+    </div>
+    </form>
+
+    </div>
+    </div>
+    </div>
+
+
+</div>
+</div>
+
+
+
+
+
+
+    {% endif %}
+
+
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.invoice.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+
+{% if request.user.username %}
+
+
+
+    <script>
+
+                  $(document).ready(function() {
+                    $('#formsave').submit(function (e) {
+                             e.preventDefault();
+
+                              Swal.fire({
+                                  title: 'Confirmation ?',
+                                  text: "Voulez-vous vraiment valider cette Opération",
+                                  icon: 'warning',
+                                  showCancelButton: true,
+                                  confirmButtonColor: '#3085d6',
+                                  cancelButtonColor: '#d33',
+                                  confirmButtonText: 'Oui',
+                                  cancelButtonText: 'Annuler',
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+
+
+
+                             $.ajax({
+                            url: '{% url 'profil' %}',
+                        type: 'POST',
+                         data:$(this).serialize(),
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+
+                                Swal.fire({
+                                          title: 'Mise à jour effectuée.Connectez-vous de nouveau',
+                                          confirmButtonText: 'Ok',
+                                        }).then((result) => {
+
+                                            if (result.isConfirmed) {
+                                                window.location.href='{% url "check" %}';
+                                            }else{
+                                                window.location.href='{% url "check" %}';
+                                            }
+
+                                        })
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+                                  }
+                                })
+
+
+
+
+
+                         });
+
+
+                  });
+
+    </script>
+
+    {% endif %}
+{% endblock %}
+
+
+
+

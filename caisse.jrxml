@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.13.0.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="fiche" pageWidth="842" pageHeight="595" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isFloatColumnFooter="true" uuid="cb2b72a0-3d4c-4330-bc37-38ae3545017a">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="adaptersqlservercaisse"/>
+	<import value="javax.imageio.ImageIO"/>
+	<import value="org.apache.commons.codec.binary.Base64"/>
+	<subDataset name="entete" uuid="2ba251d2-d2c3-493e-89bf-ac5a1c2e3b44">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="adaptersqlservercaisse"/>
+		<queryString language="SQL">
+			<![CDATA[select top 1 * from operation_societe]]>
+		</queryString>
+		<field name="id" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.label" value="id"/>
+		</field>
+		<field name="created_at" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="created_at"/>
+		</field>
+		<field name="updated_at" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="updated_at"/>
+		</field>
+		<field name="nom" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="nom"/>
+		</field>
+		<field name="sigle" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="sigle"/>
+		</field>
+		<field name="adresse" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="adresse"/>
+		</field>
+		<field name="telephone" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="telephone"/>
+		</field>
+		<field name="idetat" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="idetat"/>
+		</field>
+		<field name="email" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="email"/>
+		</field>
+	</subDataset>
+	<parameter name="dd" class="java.lang.String"/>
+	<parameter name="df" class="java.lang.String"/>
+	<parameter name="local" class="java.lang.String"/>
+	<parameter name="devise" class="java.lang.String"/>
+	<parameter name="caisse" class="java.lang.Integer"/>
+	<queryString language="SQL">
+		<![CDATA[select *,(entree-sortie) as report from(
+select datemvt,refdoc,montant,taux,devise,motif,operation_departement.libelle as departement,operation_location.libelle as referentiel,operation as TypeMvt,
+(select isnull(sum(montant),0) as mtn from operation_caisse as c where c.datemvt < $P{dd} and  c.zone_id= $P{caisse} and c.devise=operation_caisse.Devise and c.operation='E') as entree,
+(select isnull(sum(montant),0) as mtn from operation_caisse as c where c.datemvt < $P{dd} and  c.zone_id= $P{caisse} and c.devise=operation_caisse.Devise and c.operation='S') as sortie
+ from operation_caisse
+  inner join operation_departement on operation_departement.id=operation_caisse.departement_id
+  inner join operation_location on operation_location.id=operation_caisse.location_id
+  where operation_caisse.zone_id= $P{caisse}  and  devise= $P{devise} and datemvt between $P{dd}  and  $P{df}) as f order by devise,departement,datemvt]]>
+	</queryString>
+	<field name="datemvt" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="datemvt"/>
+	</field>
+	<field name="refdoc" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="refdoc"/>
+	</field>
+	<field name="montant" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="montant"/>
+	</field>
+	<field name="taux" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="taux"/>
+	</field>
+	<field name="devise" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="devise"/>
+	</field>
+	<field name="motif" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="motif"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_caisse"/>
+	</field>
+	<field name="departement" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="departement"/>
+	</field>
+	<field name="referentiel" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="referentiel"/>
+	</field>
+	<field name="TypeMvt" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="TypeMvt"/>
+	</field>
+	<field name="entree" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="entree"/>
+	</field>
+	<field name="sortie" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="sortie"/>
+	</field>
+	<field name="report" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="report"/>
+	</field>
+	<variable name="totentree" class="java.lang.Double" resetType="Group" resetGroup="Groupe1" calculation="Sum">
+		<variableExpression><![CDATA[($F{TypeMvt}.equals("E"))?$F{montant}:0]]></variableExpression>
+	</variable>
+	<variable name="totsortie" class="java.lang.Double" resetType="Group" resetGroup="Groupe1" calculation="Sum">
+		<variableExpression><![CDATA[($F{TypeMvt}.equals("S"))?$F{montant}:0]]></variableExpression>
+	</variable>
+	<variable name="slde" class="java.lang.Double" resetType="Group" resetGroup="Groupe1" calculation="Sum">
+		<variableExpression><![CDATA[(($F{TypeMvt}.equals("E"))?(($V{Groupe1_COUNT}==1)?($F{report}+$F{montant}):$F{montant}):($V{Groupe1_COUNT}==1)?$F{report}:0)-(($F{TypeMvt}.equals("S"))?$F{montant}:0)]]></variableExpression>
+	</variable>
+	<variable name="totentree_1" class="java.lang.Double" resetType="Group" resetGroup="Groupe2" calculation="Sum">
+		<variableExpression><![CDATA[($F{TypeMvt}.equals("E"))?$F{montant}:0]]></variableExpression>
+	</variable>
+	<variable name="totsortie_1" class="java.lang.Double" resetType="Group" resetGroup="Groupe2" calculation="Sum">
+		<variableExpression><![CDATA[($F{TypeMvt}.equals("S"))?$F{montant}:0]]></variableExpression>
+	</variable>
+	<group name="Groupe1">
+		<groupExpression><![CDATA[$F{devise}]]></groupExpression>
+		<groupHeader>
+			<band height="33">
+				<staticText>
+					<reportElement mode="Opaque" x="0" y="6" width="780" height="20" backcolor="#B8BFA4" uuid="39d5957c-78f5-442f-b590-862aa6585969"/>
+					<textElement>
+						<font fontName="FontCandara"/>
+					</textElement>
+					<text><![CDATA[Caisse :]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="50" y="6" width="100" height="20" uuid="8c0b7497-31f4-470b-8c5f-7e3e993164d2"/>
+					<textElement>
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{devise}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="160" y="6" width="50" height="20" uuid="e516d874-d812-4ac8-87f7-08767da5ca25"/>
+					<textElement>
+						<font fontName="FontCandara"/>
+					</textElement>
+					<text><![CDATA[Report :]]></text>
+				</staticText>
+				<textField pattern="#,##0.00">
+					<reportElement x="210" y="6" width="100" height="20" uuid="c1af8756-7b8a-49f3-91b8-a79b7d4fe595"/>
+					<textElement>
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{report}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="41">
+				<staticText>
+					<reportElement mode="Opaque" x="510" y="0" width="212" height="19" backcolor="#E0D8D7" uuid="97ac9801-0b70-42e3-ac56-8577490aede6"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total]]></text>
+				</staticText>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="709" y="0" width="71" height="19" backcolor="#E0D8D7" uuid="a48b50f0-fdfb-4578-81fb-2d5f7c8550e5"/>
+					<box>
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{slde}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="640" y="0" width="69" height="19" backcolor="#E0D8D7" uuid="2cf7ed2e-a9fa-46a5-abdd-5386feeb1682"/>
+					<box>
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{totsortie}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="560" y="0" width="80" height="19" backcolor="#E0D8D7" uuid="ce9d07be-7427-4def-a1c1-0816974057e2"/>
+					<box>
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{totentree}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Opaque" x="540" y="19" width="240" height="19" backcolor="#E0D8D7" uuid="eba3ce80-5873-4c57-a505-5b1b287249f5"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total Gén.(inclu réport)]]></text>
+				</staticText>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="660" y="19" width="120" height="19" backcolor="#E0D8D7" uuid="ceb85987-28bc-41ff-ad8a-7e118e90684c"/>
+					<box>
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{slde}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="Groupe2">
+		<groupExpression><![CDATA[$F{departement}]]></groupExpression>
+		<groupHeader>
+			<band height="49">
+				<staticText>
+					<reportElement mode="Transparent" x="0" y="30" width="60" height="19" backcolor="#E0D8D7" uuid="5f3702d6-517e-4358-9da8-363328a65dae"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="60" y="30" width="120" height="19" backcolor="#E0D8D7" uuid="47a2a234-7179-4c12-b30b-d231d02db791"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Service]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="510" y="30" width="50" height="19" backcolor="#E0D8D7" uuid="51ad431e-f0d7-4092-85ba-bcaeba0e4560"/>
+					<box rightPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Taux]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="180" y="30" width="330" height="19" backcolor="#E0D8D7" uuid="0f640c48-6999-41de-b602-9d5e888b03c9"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Libelle]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="560" y="30" width="80" height="19" backcolor="#E0D8D7" uuid="39583d8a-3ef9-4551-ae56-be6eb99553c7"/>
+					<box rightPadding="0">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Entrées]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="640" y="30" width="69" height="19" backcolor="#E0D8D7" uuid="c8a7c38c-e1ba-4803-82e0-b87d4f2c8a8a"/>
+					<box rightPadding="0">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Sorties]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="709" y="30" width="71" height="19" backcolor="#E0D8D7" uuid="5ba00c99-bd29-403b-aebd-d023ca1a67a5"/>
+					<box rightPadding="0">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Solde]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="265" y="6" width="280" height="19" backcolor="#E0D8D7" uuid="d6860544-1be3-424a-8db5-a5e8b4147c15"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{departement}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="23">
+				<staticText>
+					<reportElement mode="Opaque" x="510" y="0" width="212" height="19" backcolor="#E0D8D7" uuid="9f6476cc-593d-4933-a49e-8d52b7c6b757"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.5" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total Dep.]]></text>
+				</staticText>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="560" y="0" width="80" height="19" backcolor="#E0D8D7" uuid="e47e6fc7-ba7b-4b36-bfaf-58b60314a8ff"/>
+					<box>
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{totentree_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="640" y="0" width="69" height="19" backcolor="#E0D8D7" uuid="6d3f2ba3-c76c-48fc-b7c3-a3f92b473a5e"/>
+					<box>
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{totsortie_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Opaque" x="709" y="0" width="71" height="19" backcolor="#E0D8D7" uuid="7f2a1523-c6ce-4072-af29-e5d1eb6d2445"/>
+					<box>
+						<pen lineWidth="0.5" lineColor="#E6E1E1"/>
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#E6E1E1"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="FontCandara" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{slde}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="380" splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="176" splitType="Stretch">
+			<staticText>
+				<reportElement x="323" y="130" width="214" height="21" uuid="eca709bf-198e-40f8-b063-67396d22f877"/>
+				<textElement>
+					<font fontName="FontCandara" size="14" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Mouvement Périodique Caisse]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="332" y="152" width="50" height="13" uuid="9dae5c7e-748d-464b-bab8-34b37eddc5d8"/>
+				<textElement>
+					<font fontName="FontCandara"/>
+				</textElement>
+				<text><![CDATA[Période du]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="382" y="152" width="54" height="13" uuid="3cedf433-be34-498a-881c-759af70627c1"/>
+				<textElement>
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{dd}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="452" y="152" width="56" height="13" uuid="804f7860-885d-4a63-b27d-be555a30057a"/>
+				<textElement>
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{df}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="436" y="152" width="16" height="13" uuid="6eeb1dc4-43af-42b3-8de6-ffd992a9a1cb"/>
+				<textElement>
+					<font fontName="FontCandara"/>
+				</textElement>
+				<text><![CDATA[Au]]></text>
+			</staticText>
+			<frame>
+				<reportElement mode="Opaque" x="-20" y="-20" width="842" height="131" backcolor="#456973" uuid="4cc36b0e-9427-421d-b619-e1308646ddcb"/>
+				<componentElement>
+					<reportElement x="22" y="1" width="540" height="130" uuid="2290ce94-2f81-4005-81fe-c7fc1dea475f">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="entete" uuid="e8b5f576-3b1a-4468-a222-9f82b09bac88">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="520" uuid="7d7ab82a-fa7e-4367-ab76-df40fa244be6">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonne1"/>
+							<jr:tableHeader height="100">
+								<frame>
+									<reportElement x="0" y="0" width="520" height="100" uuid="5f91612d-18f8-4249-88de-a4d6c2916662">
+										<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+									</reportElement>
+									<textField>
+										<reportElement x="0" y="0" width="520" height="20" forecolor="#FFFFFF" uuid="e7b7f183-02ee-4669-9599-d636c8a2ad0a"/>
+										<textElement verticalAlignment="Middle">
+											<font fontName="FontCandara" size="14" isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{nom}]]></textFieldExpression>
+									</textField>
+									<textField>
+										<reportElement x="0" y="20" width="520" height="20" forecolor="#FFFFFF" uuid="945f38bb-f4b1-4b6d-942e-c0a71dbe7c3f"/>
+										<textElement verticalAlignment="Middle">
+											<font fontName="FontCandara" size="12" isBold="false" isUnderline="false"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{adresse}]]></textFieldExpression>
+									</textField>
+									<textField>
+										<reportElement x="0" y="40" width="520" height="20" forecolor="#FFFFFF" uuid="ee0ca6c1-34a6-48a9-acde-9304dcc54d6f"/>
+										<textElement>
+											<font fontName="FontCandara" size="12" isBold="false"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{idetat}]]></textFieldExpression>
+									</textField>
+									<textField>
+										<reportElement x="0" y="60" width="520" height="20" forecolor="#FFFFFF" uuid="67b11f04-08ea-4d80-9e23-612a49c69a49"/>
+										<textElement>
+											<font fontName="FontCandara" size="12" isBold="false"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{telephone}]]></textFieldExpression>
+									</textField>
+									<textField>
+										<reportElement x="0" y="80" width="520" height="20" forecolor="#FFFFFF" uuid="2aaa0c96-6b9c-4a52-9c8a-503980ee58ce"/>
+										<textElement>
+											<font fontName="FontCandara" size="12" isBold="false"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+									</textField>
+								</frame>
+							</jr:tableHeader>
+							<jr:columnFooter height="2" rowSpan="1"/>
+							<jr:detailCell height="20"/>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<textField pattern="MMMMM dd, yyyy">
+					<reportElement x="729" y="10" width="100" height="22" forecolor="#FFFFFF" uuid="f760c987-ac45-4879-bb7e-ee928ae053c6"/>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="600" y="90" width="195" height="21" forecolor="#FFFFFF" uuid="2905a3a3-d2eb-4a8f-8ae0-b4d6a2dfcb8e"/>
+					<textElement>
+						<font fontName="FontCandara" size="14" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Gestion de la Trésorerie]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="600" y="107" width="195" height="21" forecolor="#FFFFFF" uuid="5b0faf23-61dd-4864-85a0-66ea4c63f204"/>
+					<textElement>
+						<font fontName="FontCandara" size="14" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{local}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="0" y="0" width="60" height="20" uuid="e6f3f5c1-75e1-4419-8caf-c4225d08f95e"/>
+				<box leftPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement>
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{datemvt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="180" y="0" width="330" height="20" uuid="26031a4b-89b5-47bd-9438-2f72d625c51a"/>
+				<box leftPadding="5" rightPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{motif}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="510" y="0" width="50" height="20" uuid="26088be0-0547-409e-9b7c-c4680adeff1c"/>
+				<box rightPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{taux}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="560" y="0" width="80" height="20" uuid="0ef79e1e-f76e-47df-9ad5-cd3dd2ba08b5"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{TypeMvt}.equals("E"))?$F{montant}:0]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="0" width="120" height="20" uuid="040ef10d-7e6f-4e20-8cb0-56140dfe81e3">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3760566a-a2b0-4eaf-8f04-f059748ac6f9"/>
+				</reportElement>
+				<box leftPadding="5">
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{departement}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="640" y="0" width="69" height="20" uuid="3490a994-54e9-4a6e-8775-92c90b04c0a2"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{TypeMvt}.equals("S"))?$F{montant}:0]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="709" y="0" width="71" height="20" uuid="d285e3ef-6671-4671-b8c7-01da06220d74"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#E6E1E1"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="FontCandara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{slde}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="19" splitType="Stretch"/>
+	</columnFooter>
+</jasperReport>

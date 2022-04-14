@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+ <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+{% endblock %}
+{% block content %}
+
+    <div class="page-header">
+<div class="row">
+<div class="col-sm-12">
+<h3 class="page-title">Solde Physique</h3>
+
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<div class="card">
+<div class="card-body">
+<form action="#" id="frmadd" method="post">
+{% csrf_token %}
+<input type="hidden" id="iddevise" value="0" name="iddevise"  class="form-control">
+<div class="row">
+<div class="col-md-12">
+
+<div class="form-group">
+<label>Date:</label>
+<div class="cal-icon">
+<input class="form-control datetimepicker" required id="dt" value="{% now 'Y-m-d' %}" name="dt" type="text">
+</div>
+</div>
+</div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+        <label>Devise CDF:</label>
+             <input type="number" id="devisecdf" value="0" required name="devisecdf" class="form-control">
+        </div>
+    </div>
+     <div class="col-md-3">
+        <div class="form-group">
+        <label>Devise USD:</label>
+             <input type="number" id="deviseusd" value="0" required name="deviseusd" class="form-control">
+        </div>
+    </div>
+     <div class="col-md-3">
+        <div class="form-group">
+        <label>Devise EURO:</label>
+             <input type="number" id="deviseeuro" value="0" required name="deviseeuro" class="form-control">
+        </div>
+    </div>
+     <div class="col-md-3">
+        <div class="form-group">
+        <label>Devise CFA:</label>
+             <input type="number" id="devisecfa" value="0" required name="devisecfa" class="form-control">
+        </div>
+    </div>
+</div>
+
+<div class="text-end mt-4">
+ {% if perms.operation.soldephysi %}
+<button type="submit" class="btn btn-primary">Valider</button>
+     {% endif %}
+<button type="reset" class="btn btn-warning">Annuler</button>
+
+</div>
+
+</form>
+</div>
+</div>
+</div>
+</div>
+
+
+       <div class="modal custom-modal fade" id="delete_category" role="dialog">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-body">
+<div class="modal-icon text-center mb-3">
+<i class="fas fa-trash-alt text-danger"></i>
+</div>
+<div class="modal-text text-center">
+<h3>Suppression Mouvement </h3>
+    <p>Voulez-vous vraiment supprimer "<label id="lblsup" name="lblsup"></label>" ?</p>
+</div>
+</div>
+<div class="modal-footer text-center">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+<button type="button" id="btnsupression" class="btn btn-primary">Supprimer</button>
+<input type="hidden" id="idmvtsup"/>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+    <div class="page-header">
+<div class="row align-items-center">
+<div class="col">
+<h3 class="page-title">Mouvements </h3>
+
+</div>
+</div>
+</div>
+
+
+
+<div class="row">
+<div class="col-sm-12">
+<div class="card card-table">
+<div class="card-body">
+<div class="table-responsive">
+<table class="table table-center table-hover datatable" id="tablo2">
+<thead class="thead-light">
+<tr>
+<th>#</th>
+<th>Date</th>
+<th>CDF</th>
+<th>USD</th>
+<th>EURO</th>
+<th>CFA</th>
+<th class="text-end">Action</th>
+</tr>
+</thead>
+<tbody>
+
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+{% endblock %}
+
+
+{% block script %}
+    
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+        <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+
+    <script>
+
+                  $(document).ready(function() {
+
+                                      // Select 2
+                    if ($('.select').length > 0) {
+                        $('.select').select2({
+                            //minimumResultsForSearch: -1,
+                            width: '100%'
+                        });
+                    }
+
+                    affiche();
+
+                    // Datetimepicker
+
+                    if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+                     {% if perms.operation.soldephysi %}
+                    $('#frmadd').submit(function (e) {
+                             e.preventDefault();
+
+
+                             $.ajax({
+                            url: '{% url 'operation:solde' %}',
+                        type: 'POST',
+                         data:$(this).serialize(),
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+
+                                 $('#iddevise').val('0');
+                                 $('#deviseusd').val('0');
+                                 $('#devisecfa').val('0');
+                                 $('#devisecdf').val('0');
+                                 $('#deviseeuro').val('0');
+                                affiche();
+
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+
+                         {% endif %}
+
+                    //updateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+                      $(document).on("click", ".open-edite", function () {
+
+
+                                 $('#iddevise').val($(this).data('id'));
+                                 $('#deviseusd').val($(this).data('usd'));
+                                 $('#devisecfa').val($(this).data('cfa'));
+                                 $('#devisecdf').val($(this).data('cdf'));
+                                 $('#deviseeuro').val($(this).data('euro'));
+
+
+                                $('#dt').val($(this).data('dt'));
+
+
+                        });
+                        $(document).on("click", ".open-delete", function () {
+
+                                $('#idmvtsup').val($(this).data('id'));
+                                $('#lblsup').html($(this).data('id'));
+
+
+                        });
+                       $('#btnsupression').click(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                        url: '{% url 'operation:deletesolde' %}',
+                        type: 'POST',
+                         data: {
+                            'id': $('#idmvtsup').val(),
+                             'csrfmiddlewaretoken':'{{ csrf_token }}'
+                      },
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                $('#idmvtsup').val('');
+                                $('#lblsup').html('');
+                                $('#delete_category').click();
+                                affiche();
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+                    //updateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+
+                  });
+
+                  function affiche()
+                      {
+                      try{
+                      tablo=$('#tablo2').DataTable({
+                        "order":false,
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'operation:getsolde' %}",
+                      "columns":[
+                           {"data":'id'},
+                          {"data":'datemvt__date'},
+                          {"data":'deviseusd'},
+                          {"data":'devisecdf'},
+                          {"data":'deviseeuro'},
+                          {"data":'devisecfa'},
+
+                          {"data":'id',"render":function (data, type, row, meta){
+
+                                return '{% if perms.operation.soldephysimodi %}<a href="#" data-id="'+row.id+'" data-usd="'+row.deviseusd+'" data-cdf="'+row.devisecdf+'" data-euro="'+row.deviseeuro+'" data-cfa="'+row.devisecfa+'" data-dt="'+row.datemvt__date+'" data-bs-toggle="modal" data-bs-target="#edit_category" class="open-edite btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Modifier</a>{% endif %}{% if perms.operation.soldephysisup %}<a href="#" data-id="'+row.id+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete btn btn-sm btn-white text-danger me-2"><i class="far fa-trash-alt me-1"></i>Supprimer</a>{% endif %}'
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){
+
+                      }
+                      }
+    </script>
+
+{% endblock %}

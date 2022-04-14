@@ -1,0 +1,134 @@
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+body {
+    background-color: #EEEFF3;
+    font-family: 'Roboto', sans-serif
+}
+
+.card {
+    width: 260px;
+    border: none;
+    border-radius: 10px;
+    background: #4E68C7
+}
+
+p.top {
+    font-size: 14px
+}
+
+.discount {
+    background-color: #1BC5DF;
+    border: none;
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+    padding: 5px 15px;
+    transform: translateX(24px);
+    height: 35px
+}
+
+.discount span {
+    font-size: 15px
+}
+
+h3 {
+
+    color:white
+}
+
+.fa-euro-sign {
+    font-size: 27px;
+    color: #B3C4FA
+}
+
+.card-content p {
+    line-height: 18px;
+    font-size: 11px;
+    color: #abbef6
+}
+
+.btn-primary {
+    border: none;
+    border-radius: 6px;
+    background-color: #647EDF;
+    padding-top: 0;
+    height: 46px
+}
+
+.btn-primary span {
+    font-size: 13px;
+    color: #D1E2FF;
+    margin-right: 10px
+}
+
+.fa-arrow-right {
+    font-size: 12px;
+    color: #D1E2FF
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #647EDF;
+    box-shadow: none
+}
+</style>
+<div class="container d-flex justify-content-center">
+    <div class="row">
+        <div class="col-md-3">
+             <div class="card mt-5 p-4 text-white">
+        <h3 class="top mb-1">Monnaie CDF</h3>
+        <div class="d-flex flex-row justify-content-between text-align-center xyz">
+            <h2><i class="fas fa-cdf-sign"></i><span></span></h2>
+            <div class="discount"><span></span></div>
+        </div>
+        <div class="card-content mt-4">
+            <p>Faire l'etat de besoins en CDF</p>
+        </div>
+        <div class="mt-2"> <a href="javascript:window.location.href='{% url 'etatbesoin' %}?monnaie=CDF'"><button class="btn btn-block btn-lg btn-primary"><span>Valider</span><i class="fas fa-arrow-right"></i></button> </a></div>
+    </div>
+        </div>
+         <div class="col-md-3">
+ <div class="card mt-5 p-4 text-white">
+        <h3 class="top mb-1">Monnaie USD</h3>
+        <div class="d-flex flex-row justify-content-between text-align-center xyz">
+            <h2><i class="fas fa-cdf-sign"></i><span></span></h2>
+            <div class="discount"><span></span></div>
+        </div>
+        <div class="card-content mt-4">
+            <p>Faire l'etat de besoins en USD</p>
+        </div>
+        <div class="mt-2"> <a href="javascript:window.location.href='{% url 'etatbesoin' %}?monnaie=USD'"><button class="btn btn-block btn-lg btn-primary"><span>Valider</span><i class="fas fa-arrow-right"></i></button> </a></div>
+    </div>
+        </div>
+         <div class="col-md-3">
+ <div class="card mt-5 p-4 text-white">
+        <h3 class="top mb-1">Monnaie EURO</h3>
+        <div class="d-flex flex-row justify-content-between text-align-center xyz">
+            <h2><i class="fas fa-cdf-sign"></i><span></span></h2>
+            <div class="discount"><span></span></div>
+        </div>
+        <div class="card-content mt-4">
+            <p>Faire l'etat de besoins en EURO</p>
+        </div>
+        <div class="mt-2"><a href="javascript:window.location.href='{% url 'etatbesoin' %}?monnaie=EURO'"> <button class="btn btn-block btn-lg btn-primary"><span>Valider</span><i class="fas fa-arrow-right"></i></button> </a></div>
+    </div>
+        </div>
+         <div class="col-md-3">
+<div class="card mt-5 p-4 text-white">
+        <h3 class="top mb-1">Monnaie CFA</h3>
+        <div class="d-flex flex-row justify-content-between text-align-center xyz">
+            <h2><i class="fas fa-cdf-sign"></i><span></span></h2>
+            <div class="discount"><span></span></div>
+        </div>
+        <div class="card-content mt-4">
+            <p>Faire l'etat de besoins en CFA</p>
+        </div>
+        <div class="mt-2"><a href="javascript:window.location.href='{% url 'etatbesoin' %}?monnaie=CFA'"> <button class="btn btn-block btn-lg btn-primary"><span>Valider</span><i class="fas fa-arrow-right"></i></button></a> </div>
+    </div>
+        </div>
+    </div>
+
+
+
+</div>

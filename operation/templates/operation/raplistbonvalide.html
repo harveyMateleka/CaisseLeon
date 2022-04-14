@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+{% endblock %}
+{% block content %}
+
+    <div class="page-header">
+<div class="row">
+<div class="col-sm-12">
+<h3 class="page-title">Rapport Etat Besoin Validé</h3>
+
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<div class="card">
+<div class="card-body">
+<form action="#" id="frmadd" method="post">
+{% csrf_token %}
+<div class="row">
+<div class="col-md-12">
+
+<div class="row">
+
+    <div class="col-md-4">
+
+<div class="form-group">
+<label>Service</label>
+    <select class="select" name="service" id="service">
+    <option value="">Tous Services</option>
+    {% for service in services %}
+    <option value="{{ service.id }}">{{ service.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+    <div class="col-md-4">
+
+<div class="form-group">
+<label>Date début:</label>
+   <input type="text" id="dtd" value="{% now 'Y-m-d' %}" required name="dtd" class="form-control datetimepicker">
+
+
+</div>
+</div>
+    <div class="col-md-4">
+    <div class="form-group">
+    <label>Date fin:</label>
+    <div class="cal-icon">
+    <input class="form-control datetimepicker" required id="dtf" value="{% now 'Y-m-d' %}" name="dtf" type="text">
+    </div>
+    </div>
+    </div>
+
+</div>
+
+
+</div>
+<div class="col-md-6">
+
+<div class="text-end mt-4">
+<button type="button" class="btn btn-primary" onclick="impresson(1);" ><span id="btnimprimer" role="status"></span> Afficher Etat Besoin Validé</button>
+<button type="button" class="btn btn-success" onclick="impresson(2);" ><span id="btnimprimer2" role="status"></span> Afficher Etat Besoin valable</button>
+</div>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+    
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+    <script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+
+    <script>
+
+                  $(document).ready(function() {
+                     if ($('.select').length > 0) {
+                        $('.select').select2({
+                            //minimumResultsForSearch: -1,
+                            width: '100%'
+                        });
+                    }
+                  
+                    // Datetimepicker
+                    
+                    if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+
+                   
+
+
+                  });
+
+                   function impresson(id){
+                    
+                            switch (id) {
+                                case 1:
+                                    $('#btnimprimer').attr('class','spinner-border spinner-border-sm mr-2');
+                                    break;
+                                case 2:
+                                    $('#btnimprimer2').attr('class','spinner-border spinner-border-sm mr-2');
+                                    break;
+                        }
+                            var cmp=0;
+
+    $.ajax({
+     url: '{% url 'operation:raplistbonvalide' %}',
+    type: 'POST',
+     data:{
+         'csrfmiddlewaretoken': '{{ csrf_token }}',
+         'dtd': $('#dtd').val(),
+         'service': $('#service').val(),
+         'id': id,
+         'dtf': $('#dtf').val()
+     },
+    success: function(d){  
+       if(d=="true"){ 
+        $('#btnimprimer').attr('class','');
+        $('#btnimprimer2').attr('class','');
+
+            switch (id) {
+                    case 1:
+                        if($('#service').val()=="")
+                            window.open('{{ MEDIA_URL }}listbonvalide.pdf');
+                        else
+                            window.open('{{ MEDIA_URL }}listbonvalideservice.pdf');
+                        break;
+                    case 2:
+                        if($('#service').val()=="")
+                            window.open('{{ MEDIA_URL }}listbonservicefull.pdf');
+                        else
+                            window.open('{{ MEDIA_URL }}listbonservice.pdf');
+                        break;
+            }
+
+         } 
+         
+    },
+    error: function(request, status, err) {
+        $('#btnimprimer').attr('class','');
+        $('#btnimprimer2').attr('class','');
+        alert((status == "timeout") ? "Timeout" : "error: " + request + status + err);
+    }
+});
+
+      
+}
+    </script>
+
+{% endblock %}

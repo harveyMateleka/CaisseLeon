@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+ <style>
+
+        .delete-btn {
+            position: relative;
+        }
+
+        .delete {
+            display: block;
+            color: #dfdfe2;
+            text-decoration: none;
+            position: absolute;
+            background: #EE2D41;
+            font-weight: bold;
+            padding: 0px 3px;
+            border: 1px solid;
+            top: -6px;
+            left: -6px;
+            font-family: Verdana;
+            font-size: 12px;
+        }
+    </style>
+{% endblock %}
+
+
+
+
+
+
+{% block content %}
+{% if 'monnaie' in request.GET %}
+
+    {% if request.GET.monnaie == 'CDF' or request.GET.monnaie == 'USD' or request.GET.monnaie == 'EURO' or request.GET.monnaie == 'CFA' %}
+
+<div class="page-header" style="margin-top: 0px">
+<div class="row">
+<div class="col-sm-12">
+    <h3 class="page-title"><a href="javascript:window.location.href='{% url 'etatbesoin' %}'"><button class="btn btn-block btn-lg btn-primary"><span>Retour</span></button> </a> <span style="float: right;">ETAT DE BESOINS EN {{ request.GET.monnaie }}</span></h3>
+
+</div>
+</div>
+</div>
+
+
+
+
+<div class="row">
+<div class="col-md-12">
+<div class="card">
+<div class="card-body">
+<form action="#" id="frmadd" method="post">
+
+
+<div class="row">
+    <div class="col-md-6">
+    <div class="form-group">
+    <label>Date:</label>
+
+
+    <input class="form-control" id="dt" value="{{ dt }}" name="dt" type="date">
+    <input class="form-control" id="devise" value="{{ request.GET.monnaie }}" name="devise" type="hidden">
+
+    </div>
+
+    </div>
+    <div class="col-md-6">
+     <div class="form-group">
+    <label>Service:</label>
+    <select class="select" required name="superviseur" id="superviseur" style="font-size: 15px;">
+         <option value="">Choisir un service</option>
+        {% for u in departements %}
+            {% if u.user.username == request.user.username %}
+                <option selected value="{{ u.id }}" data-nom="{{ u.user.username }}"  >{{ u.departement.libelle }}</option>
+            {% else %}
+                <option value="{{ u.id }}" data-nom="{{ u.user.username }}"  >{{ u.departement.libelle }}</option>
+            {% endif %}
+
+        {% endfor %}
+
+    </select>
+    </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+
+<div class="form-group">
+<label>Nom du Demandeur:</label>
+   <input type="text" id="demandeur" required name="demandeur" class="form-control text-uppercase">
+</div>
+</div>
+    <div class="col-md-6">
+
+<div class="form-group">
+<label>Nom du Chef de Service:</label>
+   <input type="text" id="superviseurtempo" readonly="readonly" required name="superviseurtempo" class="form-control">
+    </div>
+</div>
+</div>
+<div class="row">
+        <div class="col-md-12">
+
+            <div class="form-group">
+            <label>Besoins:</label>
+            <textarea rows="3" cols="5" required class="form-control text-uppercase" id="motif" name="motif"></textarea>
+            </div>
+        </div>
+</div>
+<div class="row">
+        <div class="col-md-12">
+
+            <div class="form-group" align="center">
+             <button type="submit" class="btn btn-warning" style="color: #2f3b49;font-weight: bold;font-size: 20px;">Valider l'Etat de Besoins</button>
+            </div>
+        </div>
+</div>
+<hr>
+
+<div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered" style="color:white;">
+                        <thead style="background-color: #0d1214;">
+                            <tr class="item-row">
+                              <th>Articles</th>
+                                <th width="100px">Quantite</th>
+                                <th width="150px">P.U</th>
+                                <th width="50px">P.T</th>
+                            </tr>
+                        </thead>
+                        <tbody style="background-color: #2f3b49">
+                         <tr class="item-row">
+                            <td><div class="delete-btn"><input type="text" required class="form-control item text-uppercase" placeholder="Ecrivez le nom de l'article" type="text"><a class="delete" tabindex="-3" href="javascript:;" title="Supprimer la ligne">X</a></div></td>
+                            <td><input class="form-control qty" placeholder="Qte" required value="1" type="text"></td>
+                             <td><input class="form-control price" placeholder="Prix" required type="text"></td>
+                            <td><span class="total">0.00</span></td>
+                         </tr>
+
+                         <tr>
+                            <td colspan="3" class="text-right"><strong>Total</strong></td>
+                            <td><span id="grandTotal">0</span></td>
+                        </tr>
+
+                        <tr id="hiderow">
+                            <td colspan="4">
+                                <a id="addRow" href="javascript:;" title="Add a row" class="btn btn-primary">Ajouter une ligne</a>
+                            </td>
+                        </tr>
+
+                        <tr style="display: none">
+                            <td></td>
+                            <td></td>
+                            <td class="text-right"><strong>Sub Total</strong></td>
+                            <td><span id="subtotal">0.00</span></td>
+                        </tr>
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+</form>
+</div>
+</div>
+</div>
+</div> {% else %}
+{% include 'monnaie.html' %}
+    {% endif %}
+
+
+    {% else %}
+{% include 'monnaie.html' %}
+{% endif %}
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.invoice.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+
+{% if 'monnaie' in request.GET %}
+
+    {% if request.GET.monnaie == 'CDF' or request.GET.monnaie == 'USD' or request.GET.monnaie == 'EURO' or request.GET.monnaie == 'CFA' %}
+
+
+    <script>
+
+                  $(document).ready(function() {
+
+
+                                      // Select 2
+                      if ($('.select').length > 0) {
+                        $('.select').select2({
+                            //minimumResultsForSearch: -1,
+                            width: '100%'
+                        });
+                    }
+                      $('#superviseur').change(function () {
+                              $('#superviseurtempo').val($(this).find(':selected').attr('data-nom'));
+
+                              {% if request.user.username %}
+                                   $('#demandeur').val($(this).find(':selected').attr('data-nom'));
+                              {% endif %}
+                      });
+
+
+                        $('#superviseur').change();
+
+
+                      jQuery().invoice({
+                            addRow : "#addRow",
+                            delete : ".delete",
+                            parentClass : ".item-row",
+
+                            price : ".price",
+                            qty : ".qty",
+                            total : ".total",
+                            totalQty: "#totalQty",
+
+                            subtotal : "#subtotal",
+                            discount: "#discount",
+                            shipping : "#shipping",
+                            grandTotal : "#grandTotal"
+
+                    });
+
+
+
+                    $('#frmadd').submit(function (e) {
+                             e.preventDefault();
+
+                              Swal.fire({
+                                  title: 'Confirmation ?',
+                                  text: "Voulez-vous vraiment valider cette Opération",
+                                  icon: 'warning',
+                                  showCancelButton: true,
+                                  confirmButtonColor: '#3085d6',
+                                  cancelButtonColor: '#d33',
+                                  confirmButtonText: 'Oui',
+                                  cancelButtonText: 'Annuler',
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+                                   var postData = $(this).serializeArray();
+                             postData.push({name:'csrfmiddlewaretoken',value:'{{ csrf_token }}' });
+
+                              $('.item').each(function(i, obj) {
+                                 postData.push({name:'item',value:$(this).val() });
+                             });
+                             $('.price').each(function(i, obj) {
+                                 postData.push({name:'prix',value:$(this).val() });
+                             });
+                             $('.qty').each(function(i, obj) {
+                                 postData.push({name:'qte',value:$(this).val() });
+                             });
+
+
+                             $.ajax({
+                            url: '{% url 'etatbesoin' %}',
+                        type: 'POST',
+                         data:postData,
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+
+                               {#$.toast({#}
+                               {#     heading: 'Message',#}
+                               {#     text: ,#}
+                               {#     position: 'top-right',#}
+                               {#     loaderBg: '#ff6849',#}
+                               {#     icon: 'error',#}
+                               {#     hideAfter: 3500#}
+                               {##}
+                               {# });#}
+                               Swal.fire({
+                                          icon: 'error',
+                                          title: 'Erreur',
+                                          text: data.msg
+
+                                        })
+
+
+                            }else{
+
+                                Swal.fire({
+                                          title: 'Etat Besoins N° '+data.idetat,
+                                          confirmButtonText: 'Ok',
+                                        }).then((result) => {
+                                          if (result.isConfirmed) {
+                                           window.location.href='{% url 'etatbesoin' %}';
+                                          }else{
+                                              window.location.href='{% url 'etatbesoin' %}';
+                                          }
+                                        })
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+                                  }
+                                })
+
+
+
+
+
+                         });
+
+
+                  });
+    </script>
+{% endif %}
+    {% endif %}
+{% endblock %}
+
+
+
+

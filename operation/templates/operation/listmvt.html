@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+ <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+{% endblock %}
+{% block content %}
+
+    <div class="modal custom-modal fade" id="delete_category" role="dialog">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-body">
+<div class="modal-icon text-center mb-3">
+<i class="fas fa-trash-alt text-danger"></i>
+</div>
+<div class="modal-text text-center">
+<h3>Suppression Mouvement </h3>
+    <p>Voulez-vous vraiment supprimer "<label id="lblsup" name="lblsup"></label>" ?</p>
+</div>
+</div>
+<div class="modal-footer text-center">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+<button type="button" id="btnsupression" class="btn btn-primary">Supprimer</button>
+<input type="hidden" id="idmvtsup"/>
+</div>
+</div>
+</div>
+</div>
+    <div id="edit_category" class="modal custom-modal fade" role="dialog">
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Modification Mouvement</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+<form action="#" id="frmadd" method="post">
+{% csrf_token %}
+<div class="row">
+<div class="col-md-6">
+<div class="row">
+<div class="col-md-6">
+<div class="form-group">
+<label>Location:</label>
+<select class="select" required name="location" id="location">
+
+    {% for departement in departements %}
+    <option value="{{ departement.id }}">{{ departement.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Référentiel:</label>
+<select class="select" required name="referentiel" id="referentiel">
+
+    {% for referentiel in referentiels %}
+    <option value="{{ referentiel.id }}">{{ referentiel.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-6">
+
+<div class="form-group">
+<label>Devise:</label>
+    <select class="form-control" name="devise" id="devise">
+
+    <option value="CDF">CDF</option>
+    <option value="USD">USD</option>
+    <option value="EURO">EURO</option>
+    <option value="CFA">CFA</option>
+
+
+</select>
+</div>
+</div>
+    <div class="col-md-6">
+
+<div class="form-group">
+<label>Taux:</label>
+   <input type="text" id="taux" required name="taux" class="form-control">
+
+
+</select>
+</div>
+</div>
+</div>
+
+<div class="form-group">
+<label>Montant:</label>
+<input type="text" id="mtn" required name="mtn" class="form-control">
+<input type="hidden" id="idmvt" name="idmvt"  value="0" class="form-control">
+<input type="hidden" id="operation" name="operation" value="{{ catlibelle }}"  class="form-control">
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Date:</label>
+<div class="cal-icon">
+<input class="form-control datetimepicker"  readonly id="dt"  {{ datemvt|date:"Y-m-d" }} name="dt" type="text">
+</div>
+</div>
+<div class="form-group">
+<label>Libelle:</label>
+<textarea rows="5" cols="5" required class="form-control" id="motif" name="motif"></textarea>
+</div>
+<div class="text-end mt-4">
+
+<button type="submit" class="btn btn-primary">Modifier</button>
+</div>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+
+    <div class="page-header">
+<div class="row align-items-center">
+<div class="col">
+<h3 class="page-title">Liste des {{ libelle }} </h3><label><input class="form-control" required id="dtcher" value="{% now 'Y-m-d' %}" name="dtcher" type="date"></label>
+
+</div>
+<div class="col-auto">
+
+{% if catlibelle == 'S' %}
+    {% if perms.operation.sortieajout %}
+        <a href="{% url 'operation:mvt' %}?id={{ catlibelle }}&libelle={{ libelle }}" class="btn btn-primary">
+<i class="">Ajouter un mouvement</i>
+    {% endif %}
+{% elif catlibelle == 'E' %}
+    {% if perms.operation.entreeajout %}
+        <a href="{% url 'operation:mvt' %}?id={{ catlibelle }}&libelle={{ libelle }}" class="btn btn-primary">
+<i class="">Ajouter un mouvement</i>
+    {% endif %}
+{% endif %}
+
+</a>
+</div>
+</div>
+</div>
+
+
+
+<div class="row">
+<div class="col-sm-12">
+<div class="card card-table">
+<div class="card-body">
+<div class="table-responsive">
+<table class="table table-center table-hover datatable" id="tablo">
+<thead class="thead-light">
+<tr>
+<th>#</th>
+<th>Date</th>
+<th>Location</th>
+<th>Référentiel</th>
+<th>Libelle</th>
+<th>Compte</th>
+<th>Montant</th>
+<th>Devise</th>
+<th class="text-end">Action</th>
+</tr>
+</thead>
+<tbody>
+
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+
+    <script>
+    var tablo;
+
+                  $(document).ready(function() {
+
+                        if ($('.select').length > 0) {
+                        $('.select').select2({
+                            //minimumResultsForSearch: -1,
+                            width: '100%'
+                        });
+                    }
+                        $('.datatable').DataTable({
+                               // "bFilter": false,
+                            });
+
+                       if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+                        $(document).on("click", ".open-edite", function () {
+
+                                $('#idmvt').val($(this).data('id'));
+
+                                $('#motif').val($(this).data('motif'));
+                                $('#mtn').val($(this).data('mtn'));
+                                $('#referentiel').val($(this).data('referentiel'));
+                                $('#referentiel').change();
+                                $('#dt').val($(this).data('dt'));
+                                $('#taux').val($(this).data('taux'));
+                                $('#devise').val($(this).data('devise'));
+                                $('#location').val($(this).data('departement'));
+                                $('#location').change();
+
+                        });
+                        $(document).on("click", ".open-delete", function () {
+
+                                $('#idmvtsup').val($(this).data('id'));
+                                $('#lblsup').html($(this).data('libelle'));
+
+
+                        });
+                       $('#btnsupression').click(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                        url: '{% url 'operation:deletemvt' %}',
+                        type: 'POST',
+                         data: {
+                            'id': $('#idmvtsup').val(),
+                             'csrfmiddlewaretoken':'{{ csrf_token }}'
+                      },
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                $('#idmvtsup').val('');
+                                $('#lblsup').html('');
+                                $('#delete_category').click();
+                                affiche( $('#dtcher').val());
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+                       $('#dtcher').change(function (e) {
+                             e.preventDefault();
+                              affiche( $('#dtcher').val());
+
+                         });
+                        affiche( $('#dtcher').val());
+                        $('#frmadd').submit(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                            url: '{% url 'operation:mvt' %}',
+                        type: 'POST',
+                         data:$(this).serialize(),
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+
+
+                                $('#idmvt').val('');
+                                $('#motif').val('');
+                                $('#edit_category').click();
+                                 affiche( $('#dtcher').val());
+
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+
+
+
+
+                  });
+                    function affiche(id)
+                      {
+                      try{
+                      tablo=$('#tablo').DataTable({
+
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'operation:getmvt' %}?cat={{ catlibelle }}&id="+id,
+                      "columns":[
+                           {"data":'id'},
+                          {"data":'datemvt__date'},
+                          {"data":'departement__libelle'},
+                          {"data":'location__libelle'},
+                          {"data":'motif'},
+
+                          {"data":'location__compte'},
+                          {"data":'montant'},
+                          {"data":'devise'},
+
+                          {"data":'id',"render":function (data, type, row, meta){
+
+                                return '<a href="#" data-id="'+row.id+'" data-taux="'+row.taux+'" data-referentiel="'+row.location_id+'" data-motif="'+row.motif+'" data-departement="'+row.departement_id+'" data-mtn="'+row.montant+'" data-devise="'+row.devise+'" data-dt="'+row.datemvt__date+'" data-bs-toggle="modal" data-bs-target="#edit_category" class="open-edite btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Modifier</a><a href="#" data-id="'+row.id+'" data-libelle="'+row.motif+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete btn btn-sm btn-white text-danger me-2"><i class="far fa-trash-alt me-1"></i>Supprimer</a>'
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){}
+                      }
+    </script>
+
+{% endblock %}

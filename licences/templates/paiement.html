@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+ <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+
+{% endblock %}
+{% block content %}
+
+    <div class="modal custom-modal fade" id="delete_category" role="dialog">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-body">
+<div class="modal-icon text-center mb-3">
+<i class="fas fa-trash-alt text-danger"></i>
+</div>
+<div class="modal-text text-center">
+<h3>Suppression Mouvement </h3>
+    <p>Voulez-vous vraiment supprimer "<label id="lblsup" name="lblsup"></label>" ?</p>
+</div>
+</div>
+<div class="modal-footer text-center">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+<button type="button" id="btnsupression" class="btn btn-primary">Supprimer</button>
+<input type="hidden" id="idmvtsup"/>
+</div>
+</div>
+</div>
+</div>
+<div id="edit_category" class="modal custom-modal fade" role="dialog">
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Modification Mouvement</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+<form action="#" id="frmadd" method="post">
+{% csrf_token %}
+<div class="row">
+<div class="col-md-6">
+<div class="row">
+<div class="col-md-6">
+<div class="form-group">
+<label>Location:</label>
+<select class="select" required name="location" id="location">
+
+    {% for departement in departements %}
+    <option value="{{ departement.id }}">{{ departement.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Référentiel:</label>
+<select class="select" required name="referentiel" id="referentiel">
+
+    {% for referentiel in referentiels %}
+    <option value="{{ referentiel.id }}">{{ referentiel.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-6">
+
+<div class="form-group">
+<label>Devise:</label>
+    <select class="form-control" name="devise" id="devise">
+
+    <option value="CDF">CDF</option>
+    <option value="USD">USD</option>
+    <option value="EURO">EURO</option>
+    <option value="CFA">CFA</option>
+
+
+</select>
+</div>
+</div>
+    <div class="col-md-6">
+
+<div class="form-group">
+<label>Taux:</label>
+   <input type="text" id="taux" required name="taux" class="form-control">
+
+
+</select>
+</div>
+</div>
+</div>
+
+<div class="form-group">
+<label>Montant:</label>
+<input type="text" id="mtn" required name="mtn" class="form-control">
+<input type="hidden" id="idmvt" name="idmvt"  class="form-control">
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Date:</label>
+<div class="cal-icon">
+<input class="form-control datetimepicker" required id="dt"   name="dt" type="text">
+</div>
+</div>
+<div class="form-group">
+<label>Libelle:</label>
+<textarea rows="5" cols="5" required class="form-control" id="motif" name="motif"></textarea>
+</div>
+<div class="text-end mt-4">
+
+<button type="submit" class="btn btn-primary">Modifier</button>
+</div>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+<div class="page-header">
+    <div class="row">
+    <div class="col-sm-12">
+    <h3 class="page-title">Paiement de Licences</h3>
+    </div>
+    </div>
+    </div>
+    
+    <div class="row">
+    <div class="col-md-12">
+    <div class="card">
+    <div class="card-body">
+    <form action="#" id="frmadd" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-sm-10">
+          <div class="card text-white bg-secondary">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                        <label >N° Facture</label>
+                        <input type="text" id="numlicence" required name="numlicence" class="form-control">
+                        </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>N° Paiement</label>
+                            <input type="text" id="numfact" required name="numfact" class="form-control">
+                            </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                <label >Montant:</label>
+                                 <input type="text" id="montpaie" required name="montpaie" class="form-control">
+                                </div>
+                                </div>
+                </div>
+               <div class="row">
+                <div class="col-md-4">
+                    <label >Monnaie de Transact</label>
+                    <div class="form-group">
+                    <select class="form-control"  name="slct_devise" id="slct_dev">
+                        <option value="-1">Select la devise</option>
+                        <option value="EURO">EURO</option>
+                        <option value="CDF">CDF</option>
+                        <option value="USD">USD</option>
+                    </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <label >Mode Paiement</label>
+                    <div class="form-group">
+                    <select class="form-control"  name="slct_mode" id="slct_mode">
+                        <option value="-1">Selectionnez le mode</option>
+                        {% for ligne_mode in mode %}
+                        <option value="{{ ligne_mode.id }}">{{ ligne_mode.libelle }}</option>
+                        {% endfor %}
+                    </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                    <label >Chargé de Payer</label>
+                    <input type="text" id="charge" required name="charge" class="form-control">
+                    </div>
+                    </div>
+                 
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-primary" id='btnpaie'>Enregistrer</button> <button type="reset" class="btn btn-primary" id='btnpaiennuler'>Annuler</button> 
+               
+                </div>
+               
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    </form>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card text-white">
+              <div class="card-body">
+                <h5 class="card-title text- black">Detail Paiment</h5>
+                <div class="row">
+                    <div class="col-md-12">
+                      <div class="table-responsive">
+                          <table class="table table-center table-hover datatable" id="tbl_paiement">
+                          <thead class="thead-light">
+                          <tr>
+                          <th width="50px">id</th>
+                          <th width="200px">Date Paie</th>
+                          <th width="200px">N° Facture</th>
+                          <th width="200px">N° Paiment</th>
+                          <th width="200px">Montant</th>
+                          <th width="200px">Devise</th>
+                          <th width="200px">Action</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                      
+                          </tbody>
+                          </table>
+                          </div>
+                    </div>
+                  
+        
+                </div>
+              </div>
+            </div>
+          </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("slct_mode").select2();
+        charger_paiement();
+        $("#slct_dev").select2();
+       
+
+        $("#montpaie").on("input",function (){
+            if (isNaN($("#montpaie").val())) 
+                    {
+                           $("#montpaie").val('');
+                        return false;
+                    }
+        });
+        
+        $("#btnpaie").click(function () {
+            if ($("#montpaie").val()!='' && $("#numlicence").val()!='' &&  $("#slct_dev").val()!='-1' && $("#numfact").val()!="" && $("#charge").val()!="" && $("#slct_mode").val()!="-1" ) {
+                $.ajax({
+                    url:"{% url 'paie_licence' %}",
+                    type:"POST",
+                    data:{
+                        numvalide:$("#numlicence").val(),
+                        Montant:parseFloat($("#montpaie").val()),
+                        numfact:$("#numfact").val(),
+                        mode:$("#slct_mode").val(),
+                        charge:$("#charge").val(),
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    $("#montpaie").val('');
+                    $("#numlicence").val('');
+                    $("#slct_dev").val('-1');
+                    $("#numfact").val('');
+                    charger_paiement();
+                    $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#49ff4f',
+                                    icon: 'success',
+                                    hideAfter: 4000
+                      }); 
+                    
+                }
+                else if (data.success=='2'){
+                    $.toast({
+                                        heading: 'Message',
+                                        text: "gonflement de montant",
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'error',
+                                        hideAfter: 4000
+                     });
+                }
+              
+            },
+            error:function(data){
+                    $.toast({
+                                        heading: 'Message',
+                                        text: "verifie bien les données",
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'error',
+                                        hideAfter: 4000
+                     });
+            }
+        });
+            }
+            else{
+                $.toast({
+                                    heading: 'Message',
+                                    text: "Verifiez bien les zones",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+             }); 
+            }
+
+        });
+
+
+
+////________________________________valider licence_____________________________________
+
+
+
+
+
+
+
+            
+
+if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+
+
+$('body').delegate('.delete','click',function(e){
+    var idd=$(this).data('id');
+    Swal.fire({
+            title: 'voulez vous supprimer ce paiement',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Oui',
+            denyButtonText: `Non`,
+            }).then((result)=>{
+                if (result.isConfirmed) {
+                    $.ajax({
+                    url:"{% url 'deletepaie' %}",
+                    type:"POST",
+                    data:{
+                        id:idd,
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success:function(data){
+                        if (data.success=='1') {
+                            charger_paiement(); 
+                        }
+                    },
+                    error:function(data){
+                        alert(data.success);
+                    }
+                });
+                }
+                else if(result.isDenied) {
+
+                }
+                
+            });
+    
+});
+      
+
+    
+          
+
+
+});
+
+
+
+function charger_paiement()
+         {
+           var otableau=$('#tbl_paiement').DataTable({
+                 "bProcessing":true,
+                 "sAjaxSource":"{% url 'charge_paie' %}",
+                 "columns":[
+                     {"data":'id'},
+                     {"data":'datepaie'},
+                     {"data":'id_declaration__num_fac'},
+                     {"data":'numfact'},
+                     {"data":'montpaie'},
+                     {"data":'id_declaration__monnaie'},
+                     {"data":'id',"autoWidth":true,"render":function (data) {
+                         return '<button data-id='+data+' class="btn btn-warning btn-circle delete" >delete</button>';
+                          }}
+                    
+                 ],
+                 "pageLength": 10, 
+                 "bDestroy":true
+             });
+         
+         }
+        
+</script>
+{% endblock %}

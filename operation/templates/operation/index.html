@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% if perms.operation.dashboard %}
+
+ {% for zone in zones %}
+      <div class="row">
+ <div class="col-xl-3 col-sm-6 col-12">
+<div class="card">
+<div class="card-body">
+<div class="dash-widget-header">
+<span class="dash-widget-icon bg-1">
+<i class="fas fa-file-alt"></i>
+</span>
+<div class="dash-count">
+<div class="dash-title">USD</div>
+<div class="dash-counts">
+<p>{{ zone.USD }}</p>
+</div>
+</div>
+</div>
+<div class="progress progress-sm mt-3">
+<div class="progress-bar bg-5" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+
+</div>
+    &nbsp;
+    <span>{{ zone.libelle }}</span>
+</div>
+</div>
+</div>
+     <div class="col-xl-3 col-sm-6 col-12">
+<div class="card">
+<div class="card-body">
+<div class="dash-widget-header">
+<span class="dash-widget-icon bg-2">
+<i class="fas fa-file-alt"></i>
+</span>
+<div class="dash-count">
+<div class="dash-title">EURO</div>
+<div class="dash-counts">
+<p>{{ zone.EURO }}</p>
+</div>
+</div>
+</div>
+<div class="progress progress-sm mt-3">
+<div class="progress-bar bg-6" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+    &nbsp;
+    <span>{{ zone.libelle }}</span>
+</div>
+</div>
+</div>
+<div class="col-xl-3 col-sm-6 col-12">
+<div class="card">
+<div class="card-body">
+<div class="dash-widget-header">
+<span class="dash-widget-icon bg-3">
+<i class="fas fa-file-alt"></i>
+</span>
+<div class="dash-count">
+<div class="dash-title">CDF</div>
+<div class="dash-counts">
+<p>{{ zone.CDF }}</p>
+</div>
+</div>
+</div>
+<div class="progress progress-sm mt-3">
+<div class="progress-bar bg-7" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+    &nbsp;
+    <span>{{ zone.libelle }}</span>
+</div>
+</div>
+</div>
+<div class="col-xl-3 col-sm-6 col-12">
+<div class="card">
+<div class="card-body">
+<div class="dash-widget-header">
+<span class="dash-widget-icon bg-4">
+<i class="fas fa-file-alt"></i>
+</span>
+<div class="dash-count">
+<div class="dash-title">CFA</div>
+<div class="dash-counts">
+<p>{{ zone.CFA }}</p>
+</div>
+</div>
+</div>
+<div class="progress progress-sm mt-3">
+<div class="progress-bar bg-8" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+    &nbsp;
+    <span>{{ zone.libelle }}</span>
+</div>
+</div>
+</div>
+     </div>
+ {% endfor %}
+
+
+
+
+
+    <div class="row">
+    <div class="col-xl-12 d-flex">
+    <div class="card flex-fill">
+    <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+    <h5 class="card-title">Statistique</h5>
+     <div class="row">
+<div class="col top-action-left">
+<div class="float-left">
+
+<div class="btn-group dropdown-action">
+<button type="button" class="btn btn-white dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="lblmonnaie">Selectionner Devise <i class="fas fa-angle-down"></i></button>
+<div class="dropdown-menu" style="margin: 0px;">
+<a class="dropdown-item monnaie" data-id="USD" href="#">USD</a>
+<a class="dropdown-item monnaie" data-id="CDF" href="#">CDF</a>
+<a class="dropdown-item monnaie" data-id="EURO" href="#">EURO</a>
+<a class="dropdown-item monnaie" data-id="CFA" href="#">CFA</a>
+</div>
+</div>
+<div class="btn-group dropdown-action">
+<button type="button" class="btn btn-white dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="lblmois">Selectionner Mois <i class="fas fa-angle-down"></i></button>
+<div class="dropdown-menu" style="margin: 0px;">
+<a class="dropdown-item mois" data-id="01" data-libelle="Janvier" href="#" >Janvier</a>
+<a class="dropdown-item mois" data-id="02" data-libelle="Février" href="#">Février</a>
+<a class="dropdown-item mois" data-id="03" data-libelle="Mars" href="#">Mars</a>
+<a class="dropdown-item mois" data-id="04" data-libelle="Avril" href="#">Avril</a>
+<a class="dropdown-item mois" data-id="05" data-libelle="Mai" href="#">Mai</a>
+<a class="dropdown-item mois" data-id="06" data-libelle="Juin" href="#">Juin</a>
+<a class="dropdown-item mois" data-id="07" data-libelle="Juillet" href="#">Juillet</a>
+<a class="dropdown-item mois" data-id="08" data-libelle="Aôut" href="#">Aôut</a>
+<a class="dropdown-item mois" data-id="09" data-libelle="Setptembre" href="#">Setptembre</a>
+<a class="dropdown-item mois" data-id="10" data-libelle="Octobre" href="#">Octobre</a>
+<a class="dropdown-item mois" data-id="11" data-libelle="Novembre" href="#">Novembre</a>
+<a class="dropdown-item mois" data-id="12" data-libelle="Décembre" href="#">Décembre</a>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+    </div>
+    </div>
+    <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between flex-wrap flex-md-nowrap">
+    <div class="w-md-100 d-flex align-items-center mb-3">
+    <div>
+    <span>Total Entrées</span>
+    <p class="h3 text-primary me-5">$0</p>
+    </div>
+    <div>
+    <span>Total Sorties</span>
+    <p class="h3 text-success me-5">$0</p>
+    </div>
+    <div>
+    <span>Solde</span>
+    <p class="h3 text-danger me-5">$0</p>
+    </div>
+
+    </div>
+    </div>
+    <div id="sales_chart"></div>
+    </div>
+    </div>
+    </div>
+    </div>
+    {% else %}
+        <div class="row">
+        <h5 class="card-title">Bienvenu(e) dans MILTEX SARLU</h5>
+        <video  controls autoplay muted loop>
+          <source src="{% static 'assets/img/Milky Way - 22763.mp4' %}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        </div>
+    {% endif %}
+
+{% endblock %}
+{% block script %}
+
+    <script>
+var tablo;
+                  $(document).ready(function() {
+                      $('.monnaie').click(function (e) {
+                             e.preventDefault();
+                             $('#lblmonnaie').html($(this).attr('data-id'));
+
+
+                         });
+
+                      $('.mois').click(function (e) {
+                             e.preventDefault();
+                             $('#lblmois').html($(this).attr('data-libelle'));
+
+                         });
+
+
+
+
+
+
+
+                  });
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,673 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+ <style>
+
+        .delete-btn {
+            position: relative;
+        }
+
+        .delete {
+            display: block;
+            color: #dfdfe2;
+            text-decoration: none;
+            position: absolute;
+            background: #EE2D41;
+            font-weight: bold;
+            padding: 0px 3px;
+            border: 1px solid;
+            top: -6px;
+            left: -6px;
+            font-family: Verdana;
+            font-size: 12px;
+        }
+    </style>
+{% endblock %}
+
+
+
+
+
+
+{% block content %}
+ <div id="edit_category" class="modal custom-modal fade" role="dialog">
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Etat Besoins N° <span id="numetat"></span></h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item"><a class="nav-link active" href="#basictab1" data-bs-toggle="tab">Details Etat de Besoins</a></li>
+        <li class="nav-item"><a class="nav-link" href="#basictab2" data-bs-toggle="tab">Factures Etat de Besoins</a></li>
+
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane show active" id="basictab1">
+            <div class="row">
+            <div class="col-md-12">
+            <div class="card">
+            <div class="card-body">
+            <form action="#"  method="post">
+
+
+            <div class="row">
+                <div class="col-md-6">
+                <div class="form-group">
+                <label>Date:</label>
+                <div class="cal-icon">
+                <input class="form-control  datetimepicker" disabled id="dt"  name="dt" type="text">
+                  </div>
+                </div>
+
+                </div>
+                 <div class="col-md-6">
+                <div class="form-group">
+                <label>Devise:</label>
+                <div class="cal-icon">
+                <input class="form-control" id="devise" disabled name="devise" type="text">
+
+                </div>
+                </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+
+            <div class="form-group">
+            <label>Nom du Demandeur:</label>
+               <input type="text" id="demandeur" disabled name="demandeur" class="form-control text-uppercase">
+            </div>
+            </div>
+            </div>
+            <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="form-group">
+                        <label>Besoins:</label>
+                        <textarea rows="5" cols="5" disabled class="form-control text-uppercase" id="motif" name="motif"></textarea>
+                        </div>
+                    </div>
+            </div>
+            <hr>
+
+            <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" style="color:white;">
+                                    <thead style="background-color: #0d1214;">
+                                        <tr>
+                                            <th>Articles</th>
+                                            <th>Quantite</th>
+                                            <th>P.U</th>
+                                            <th>P.T</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="background-color: #2f3b49" id="fulldata">
+                                    <tr>
+
+                                        <td colspan="3" class="text-right"><strong>Total Etat Besoin</strong></td>
+                                        <td><span id="Total">0</span></td>
+                                    </tr>
+
+                                    <tr>
+
+                                        <td colspan="3" class="text-right"><strong>Total Factures</strong></td>
+                                        <td><span id="Total2">0</span></td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+            </div>
+            </div>
+            </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="basictab2">
+            <div class="row">
+            <div class="col-md-12">
+            <div class="card">
+            <div class="card-body">
+            <form action="#" id="frmadd" method="post">
+                {% csrf_token %}
+
+
+            <div class="row">
+                <div class="col-md-6">
+                <div class="form-group">
+                <label>Date:</label>
+                <div class="cal-icon">
+                <input class="form-control  datetimepicker" required id="dtf" value="{% now 'Y-m-d' %}"  name="dtf" type="text">
+                  </div>
+                </div>
+
+                </div>
+                 <div class="col-md-6">
+                <div class="form-group">
+                <label>Montant:</label>
+
+                <input class="form-control" required id="mtn" name="mtn" type="text">
+                <input class="form-control" id="idmvt" name="idmvt" type="hidden">
+                <input class="form-control" id="id" value="0" name="id" type="hidden">
+
+                </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+
+            <div class="form-group">
+            <label>N° Facture:</label>
+               <input type="text" id="fac" name="fac" class="form-control text-uppercase">
+            </div>
+            </div>
+                <div class="col-md-6">
+
+            <div class="form-group">
+            <label>Nom Fournisseur:</label>
+               <input type="text" required id="fou" name="fou" class="form-control text-uppercase">
+            </div>
+            </div>
+            </div>
+            <div class="row">
+               <div class="col-md-12">
+
+                        <div class="form-group">
+                        <label>Observation:</label>
+                        <textarea rows="5" cols="5" class="form-control text-uppercase" id="obs" name="obs"></textarea>
+                        </div>
+                    </div>
+            </div>
+
+            <div class="row">
+                 <div class="col-md-4">
+                    <button type="submit" class="btn btn-success" style="color: #dfdfe2;font-weight: bold;font-size: 20px;">Valider</button>
+                     &nbsp;
+                 </div>
+            </div>
+            <hr>
+
+            <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered datatable" style="color:white;" id="tablo2">
+                                    <thead style="background-color: #0d1214;">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Date</th>
+                                            <th>N° Facture</th>
+                                            <th>Montant</th>
+                                            <th>Fournisseur</th>
+                                            <th>Obs</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="background-color: #2f3b49" id="fulldataf">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+            </div>
+            </div>
+            </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="page-header" style="margin-top: 0px">
+<div class="row">
+<div class="col-sm-12">
+    <h3 class="page-title">  <span style="float: right;">LISTE DE BESOINS-JUSTIFICATION</span></h3>
+
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+    <div class="card card-table">
+    <div class="card-body">
+        <form action="#" id="frmcher" method="post">
+
+            <div class="row">
+            <div class="col-md-6">
+            <div class="form-group" style="margin-left: 10px;margin-top: 10px;">
+            <label>Date début:</label>
+               <input type="text" id="dd" value="{% now 'Y-m-d' %}" required name="dd" class="form-control datetimepicker">
+
+
+            </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group" style="margin-right: 10px;margin-top: 10px;">
+                <label>Date fin:</label>
+                <div class="cal-icon">
+                <input class="form-control datetimepicker" required id="df" value="{% now 'Y-m-d' %}" name="df" type="text">
+                </div>
+                </div>
+            </div>
+
+        </div>
+            <div class="row">
+
+                <div class="col-md-6">
+                <div class="text-end mt-4">
+                <button type="button" class="btn btn-primary" onclick="affiche();" ><span role="status"></span> Afficher</button>
+                <button type="button" class="btn btn-success" onclick="impresson2();" ><span id="btnimp" role="status"></span> Imprimer</button>
+                </div>
+                </div>
+
+            </div>
+         </form>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                <table class="table table-center table-hover datatable" id="tablo">
+                <thead class="thead-light">
+                <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Service</th>
+                <th>Demandeur</th>
+                <th>Motif</th>
+                <th>Devise</th>
+                <th>Total</th>
+                <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+                </table>
+                </div>
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.invoice.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+
+
+
+
+
+    <script>
+
+                  $(document).ready(function() {
+
+                         if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+                                      // Select 2
+                         if ($('.select').length > 0) {
+                        $('.select').select2({
+                            //minimumResultsForSearch: -1,
+                            width: '100%'
+                        });
+                    }
+
+                         $(document).on("click", ".open-delete", function () {
+
+                              impresson($(this).data('idete'))
+
+
+
+
+                        });
+                         $(document).on("click", ".open-edite", function () {
+                              $('#addRow').click();
+                              $('#idmvt').val($(this).data('idete'));
+                              $('#numetat').html($(this).data('idete'));
+                              $('#motif').val($(this).attr('data-motif'));
+                              $('#demandeur').val($(this).attr('data-demandeur'));
+                              $('#devise').val($(this).attr('data-devise'));
+                              $('#dt').val($(this).attr('data-date'));
+
+                              $(".item-row").remove();
+                              getdata($(this).attr('data-idete'));
+                              $('#edit_category').click();
+                              affiche2($('#idmvt').val());
+
+                        });
+
+
+
+                         $(document).on("click", ".open-delete2", function () {
+
+                              var t=$(this).data('id');
+                              $.ajax({
+                        url: '{% url 'operation:deletefacturebesoin' %}',
+                        type: 'POST',
+                         data: {
+                            'id': t,
+                             'csrfmiddlewaretoken':'{{ csrf_token }}'
+                      },
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                $('#id').val('0');
+                                affiche2($('#idmvt').val());
+                                 $(".item-row").remove();
+                                getdata($('#idmvt').val());
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+
+
+
+                        });
+                         $(document).on("click", ".open-edite2", function () {
+
+                              $('#id').val($(this).data('id'));
+                              $('#fac').val($(this).data('fac'));
+                              $('#mtn').val($(this).data('prix'));
+                              $('#obs').val($(this).attr('data-obs'));
+                              $('#fou').val($(this).attr('data-fou'));
+                              $('#dtf').val($(this).attr('data-date'));
+
+
+                        });
+
+                          $('#frmadd').submit(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                            url: '{% url 'operation:etatbs' %}',
+                            type: 'POST',
+                             data:$(this).serialize(),
+                            async: false,
+                            success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                affiche2($('#idmvt').val());
+                                 $(".item-row").remove();
+                                getdata($('#idmvt').val());
+
+                                 $('#id').val('0');
+                                 $('#fac').val('');
+                              $('#mtn').val('');
+                              $('#obs').val('');
+                              $('#fou').val('');
+
+                                   }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+
+
+                          $('.datatable').DataTable({
+                               // "bFilter": false,
+                            });
+
+                         affiche();
+
+
+
+
+
+
+
+
+                  });
+
+                   function  getdata(id) {
+
+
+                            $.ajax({
+                            url: '{% url 'operation:getetatbs' %}',
+                        type: 'GET',
+                         data:{
+                                'id':id
+                         },
+                        async: true,
+                        success: function (data) {
+
+
+                                    $('#fulldata').prepend(data.txt)
+                                    $('#Total').html(data.tot)
+                                    $('#Total2').html(data.txtfac)
+                                    //$('#fulldataf').prepend(data.txtfac)
+                                    //$('#fulldataf').click();
+
+
+                                 {#$.each(data,function(key,value){#}
+                                 {##}
+                                 {#     #}
+                                 {##}
+                                 {#   });#}
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+                  }
+
+
+                  function affiche2(id)
+                          {
+                      try{
+                      tablo=$('#tablo2').DataTable({
+                        "order":  [[ 0, "desc" ]],
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'operation:getbesoinfacture' %}?id="+id,
+                      "columns":[
+                           {"data":'id'},
+                          {"data":'datemvt__date'},
+                          {"data":'facture'},
+                          {"data":'prix'},
+                          {"data":'fournisseur'},
+                          {"data":'description'},
+                          {"data":'id',"render":function (data, type, row, meta){
+
+                                return '{% if perms.operation.change_factureetatbesoin %}<a href="#" data-fac="'+row.facture+'"  data-id="'+row.id+'" data-obs="'+row.description+'" data-fou="'+row.fournisseur+'" data-prix="'+row.prix+'" data-date="'+row.datemvt__date+'" data-bs-toggle="modal" data-bs-target="#edit_category" class="open-edite2 btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Modifier</a>{% endif %}{% if perms.operation.delete_factureetatbesoin %}<a href="#"   data-id="'+row.id+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete2 btn btn-sm btn-white text-warning me-2"><i class="far fa-trash-alt me-1"></i> Supprimer</a>{% endif %}'
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){}
+                      }
+
+                   function affiche()
+                          {
+                      try{
+                      tablo=$('#tablo').DataTable({
+                        "order":  [[ 0, "desc" ]],
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'operation:getbesoin' %}?dtd="+$('#dd').val()+"&dtf="+$('#df').val(),
+                      "columns":[
+                           {"data":'etatbesoin__id'},
+                          {"data":'etatbesoin__datemvt'},
+                          {"data":'etatbesoin__superviseur__departement__libelle'},
+                          {"data":'etatbesoin__demandeur'},
+                          {"data":'etatbesoin__motif'},
+                          {"data":'etatbesoin__devise'},
+
+                          {"data":'multitot'},
+                          {"data":'etatbesoin__id',"render":function (data, type, row, meta){
+
+                                return '<a href="#"   data-idete="'+row.etatbesoin__id+'" data-motif="'+row.etatbesoin__motif+'" data-demandeur="'+row.etatbesoin__demandeur+'" data-devise="'+row.etatbesoin__devise+'" data-date="'+row.etatbesoin__datemvt+'" data-bs-toggle="modal" data-bs-target="#edit_category" class="open-edite btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Voir</a><a href="#"   data-idete="'+row.etatbesoin__id+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete btn btn-sm btn-white text-warning me-2"><i class="far fa-file me-1"></i><span id="btnimprimer'+row.etatbesoin__id+'" role="status"></span> Pdf</a>'
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){}
+                      }
+
+                   function impresson(id){
+
+                            var idbtn="#btnimprimer"+id;
+                            $(idbtn).attr('class','spinner-border spinner-border-sm mr-2');
+                            var cmp=0;
+
+                             $.ajax({
+     url: '{% url 'operation:rapetatbs' %}',
+    type: 'POST',
+     data:{
+         'csrfmiddlewaretoken': '{{ csrf_token }}',
+         'bon': id
+     },
+    success: function(d){
+       if(d=="true"){
+        $(idbtn).attr('class','');
+         window.open('{{ MEDIA_URL }}etatbesoin.pdf');
+         }
+
+    },
+    error: function(request, status, err) {
+        $(idbtn).attr('class','');
+        alert((status == "timeout") ? "Timeout" : "error: " + request + status + err);
+    }
+});
+
+
+}
+
+function impresson2(){
+
+                            var idbtn="#btnimp";
+                            $(idbtn).attr('class','spinner-border spinner-border-sm mr-2');
+                            var cmp=0;
+
+                             $.ajax({
+     url: '{% url 'operation:rapetatbesoinjus' %}',
+     type: 'POST',
+     data:{
+         'csrfmiddlewaretoken': '{{ csrf_token }}',
+         'dtd': $('#dd').val(),
+         'dtf': $('#df').val()
+     },
+    success: function(d){
+       if(d=="true"){
+        $(idbtn).attr('class','');
+         window.open('{{ MEDIA_URL }}etatfac.pdf');
+         }
+
+    },
+    error: function(request, status, err) {
+        $(idbtn).attr('class','');
+        alert((status == "timeout") ? "Timeout" : "error: " + request + status + err);
+    }
+});
+
+
+}
+    </script>
+
+
+{% endblock %}
+
+
+
+

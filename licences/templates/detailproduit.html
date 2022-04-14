@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+
+{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">Detail Produit</h3>
+          </div>
+    </div> 
+  </div>
+  <div class="row">
+        <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-black">Les éléments des Produits</h5>
+                        <hr>  
+                        <form action="#" id="frmadd" method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                  <div class="card text-white bg-primary">
+                                    <div class="card-body">
+                                       <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                    <label >Numéro Licence</label>
+                                                    <input type="text" id="numvalide" required name="tarif" class="form-control">
+                                            </div>
+                                      </div>
+                                          <div class="col-md-3">
+                                                <div class="form-group">
+                                                        <label >Tarif</label>
+                                                        <input type="text" id="tarif" required name="tarif" class="form-control">
+                                                </div>
+                                          </div>
+                                          <div class="col-md-3">
+                                          <div class="form-group">
+                                          <label >Designation:</label>
+                                          <textarea rows="5" cols="5" required class="form-control" id="designation" name="designation"></textarea>
+                                          </div>
+                                          </div>
+                                          <div class="col-md-3">
+                                            <div class="form-group">
+                                            <label >Unité</label>
+                                            <input type="text" id="unite" required name="unite" class="form-control">
+                                            </div>
+                                            </div>
+                                      </div>
+                                      <div class="row">
+                                        <div class="col-md-4">
+                                        <div class="form-group">
+                                        <label >Qte</label>
+                                        <input type="text" id="qte" required name="qte" class="form-control"> </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                            <label >Prix Unit</label>
+                                            <input type="text" id="prix" required name="prix" class="form-control">
+                                            </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                <label>Montant Unit</label>
+                                                <input type="text" id="montqte" required name="montqte" class="form-control" readonly> </div>
+                                                </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <button type="button" class="btn btn-success" id='btnsave'>Sauvegarder</button> 
+                                            <button type="button" class="btn btn-secondary" id='btnannuler'>Annuler</button> 
+                                        </div>
+                                    </div>
+                                <hr>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="table-responsive">
+                                                <table class="table table-center table-hover datatable" id="tbl_prod">
+                                                <thead class="thead-light">
+                                                <tr>
+                                                <th width="50px">id</th>
+                                                <th width="200px">Tarif</th>
+                                                <th width="300px">Designation</th>
+                                                <th width="200px">Unité</th>
+                                                <th width="100px">Qte</th>
+                                                <th width="200px">Prix</th>
+                                                <th width="200px">Montant</th>
+                                                <th width="100px">Devise</th>
+                                                <th width="200px">Action</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                            
+                                                </tbody>
+                                                </table>
+                                                </div>
+                                          </div>
+                                    </div>
+                                      
+                                    </div>
+                                  </div>
+                                </div>
+                               
+                              
+                            </div>
+                        </form> 
+                    </div>  
+                </div>
+        </div> 
+  </div>
+{% endblock %}
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $("#slct_four").select2();
+        $("#slct_pays").select2();
+        $("#slct_bq").select2();
+      
+
+        $("#btnannuler").click(function () {
+            $('#tarif').val("");
+            $('#designation').val("");
+            $('#prix').val("");
+            $('#qte').val("");
+            $('#montqte').val("");
+            $("#unite").val("");
+        });
+////________________________________valider licence_____________________________________
+            $("#btnsave").click(function () { 
+                if ($('#tarif').val()!="" && $('#designation').val()!= "" && $('#qte').val()!= "" && $('#prix').val()!="") {
+                    if ($('#montqte').val()!="" && $("#txtmont").val()!="") {
+                        save_produit() ;
+                       
+                        
+                        
+                    }   
+                }           
+            });
+
+
+if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+    $('body').delegate('.prodedit','click',function(e){
+        var idd=$(this).data('id');
+        Swal.fire({
+        title: 'Do you want to save the changes?',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        denyButtonText: `Don't Delete`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+            url:"{% url 'delproduit' %}",
+            type:"POST",
+            data:{
+                id:idd,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    Montantdetail-=parseFloat(data.montant);
+                    Swal.fire('supprimer!', '', 'success')
+                    formatages(data.data);
+
+                }
+              
+            },
+            error:function(data){
+                Swal.fire('erreur du serveur', '', 'error')
+                //alert(data.success);
+            }
+        });
+            Swal.fire('Saved!', '', 'success')
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info')
+        }
+        })
+    });
+
+$('body').delegate('.edit','click',function(e){
+    var idd=$(this).data('id');
+    Swal.fire({
+        title: 'Voulez vous supprimer ?',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        denyButtonText: `Don't Delete`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+            url:"{% url 'delconnexe' %}",
+            type:"POST",
+            data:{
+                id:idd,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    Montantfrais-=parseFloat(data.montant);
+                    Swal.fire('supprimer!', '', 'success')
+                    formatage(data.data);
+
+                }
+              
+            },
+            error:function(data){
+                Swal.fire('erreur du serveur', '', 'error')
+                //alert(data.success);
+            }
+        });
+            
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info')
+        }
+        })
+  
+});
+        $("#qte, #prix").on('input',function() {
+            if (isNaN($("#qte").val()) || isNaN($("#prix").val()) ) {
+                $("#qte").val('');
+                $("#prix").val('');
+            }
+            else{
+                calcul();
+            }
+            });
+
+    function save_produit() {
+    if ($("#numvalide").val()!="") {
+        $.ajax({
+            url:"{% url 'detail_prod' %}",
+            type:"POST",
+            data:{
+                tarif:$("#tarif").val(),
+                detail:$("#designation").val(),
+                prix:$("#prix").val(),
+                qte:$("#qte").val(),
+                numvalidate:$("#numvalide").val(),
+                unite:$("#unite").val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    $('#tarif').val("");
+                    $('#designation').val("");
+                    $('#prix').val("");
+                    $('#qte').val("");
+                    $('#montqte').val("");
+                    $("#unite").val("");
+                    formatages($("#numvalide").val());
+                }
+              
+            },
+            error:function(data){
+                alert(data.success);
+            }
+        });
+    }
+}
+          
+
+
+});
+
+function calcul() {
+    if (parseFloat($("#qte").val()) > 0 && parseFloat($("#prix").val())>0) {
+            var valeur=parseFloat($("#qte").val())*parseFloat($("#prix").val());
+            $('#montqte').val(valeur);
+        }
+        else{
+            return false;
+        }  
+}
+
+         function formatages(numero)
+         {
+             var qte=0.0;
+             var prix=0.0;
+             var Mont=0.0;
+           var otableau=$('#tbl_prod').DataTable({
+                 "bProcessing":true,
+                 "sAjaxSource":"/decla/getdetailprod/"+numero,
+                 "columns":[
+                     {"data":'id'},
+                     {"data":'tarif'},
+                     {"data":'designation'},
+                     {"data":'unit',},
+                     {"data":'qtefour',"autoWidth":true,"render":function (data){
+                        qte=data;
+                        return qte;
+                     }},
+                     {"data":'prix',"autoWidth":true,"render":function (data){
+                        prix=data;
+                        return prix;
+                     }},
+                     {"data":'id',"autoWidth":true,"render":function (data) {
+                        Mont= qte * prix;
+                         return Mont;
+                          }},
+                          {"data":'id',"autoWidth":true,"render":function (data) {
+                            return $("#slct_devise").val();
+                          }},
+                     {"data":'id',"autoWidth":true,"render":function (data) {
+                         return '<button data-id='+data+' class="btn btn-warning btn-circle prodedit" >delete</button>';
+                          }}
+                    
+                 ],
+                 "pageLength": 10, 
+                 "bDestroy":true
+             });
+         
+         }
+</script>
+{% endblock %}

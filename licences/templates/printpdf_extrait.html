@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">  
+<style type="text/css">
+    .clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+a {
+  color: #5D6975;
+  text-decoration: underline;
+}
+
+body {
+  position: relative;
+  width: auto;  
+  height: auto; 
+  margin: 0 auto; 
+  color: #001028;
+  background: #FFFFFF; 
+  font-family: Arial, sans-serif; 
+  font-size: 12px; 
+  font-family: Arial;
+}
+
+header {
+  padding: 0px 0;
+  margin-bottom: 30px;
+}
+
+#logo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#logo img {
+  width: 90px;
+}
+
+h1 {
+  border-top: 1px solid  #5D6975;
+  border-bottom: 1px solid  #5D6975;
+  color: #5D6975;
+  font-size: 2.4em;
+  line-height: 1.4em;
+  font-weight: normal;
+  text-align: center;
+  margin: 0 0 20px 0;
+  background: url(dimension.png);
+}
+
+#project {
+  float: left;
+}
+
+#project span {
+  color: #5D6975;
+  text-align: right;
+  width: 52px;
+  margin-right: 10px;
+  display: inline-block;
+  font-size: 0.8em;
+}
+
+#company {
+  float: right;
+  
+}
+
+#project div,
+#company div {
+  white-space: nowrap;        
+}
+
+table, td, th {
+  border: 1px solid rgb(90, 89, 89);
+  text-align: center;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,td {
+  height: 40px;
+  padding-top: 0pc;
+  
+}
+
+.center {
+margin: auto;
+width: 60%;
+padding: 60px 20px 10px;
+}
+
+
+
+#notices .notice {
+  color: #5D6975;
+  font-size: 1.2em;
+}
+
+footer {
+  color: #5D6975;
+  width: 100%;
+  height: 30px;
+  position: absolute;
+  bottom: 0;
+  border-top: 1px solid #C1CED9;
+  padding: 8px 0;
+  text-align: center;
+}
+
+</style>
+
+  </head>
+  <body>
+    <header class="clearfix">
+      <div  style="text-align: right;">
+        Kinshasa le, {{today}} 
+      </div>
+      <div id="company" class="clearfix">
+        <div>MILTEX SARL(CLT2245967)</div>
+        <div>Av DU COMMERCE 71 C/GOMBE,KINSHASA, RDC</div>
+        <div>T&eacute;l: 0819813024; Email: miltextrading@yahoo.fr</div>
+        <div>N N.R.C: 14-B-2299 - N IMPOT: A0705328A</div>
+      </div>
+    </header>
+    
+    {% load mathfilters %}
+    <main>
+        <div class="center">
+            <h6 style="text-align: center;justify-content: center;" ><u>Extraits des operations de Licence du numero {{ numero}} </br> de la periode de {{ ddebut }} au {{ dfin }}</u> </h6> 
+        </div>
+      </br></br>
+      <div style="text-align: left;"> 
+        <h6> Montant Facturation : {{facturation}} {{monnaie}}  &nbsp;&nbsp; &nbsp; &nbsp; Montant d&eacute;ja Pay&eacute; : {{total|sub:paiement}} {{monnaie}}  &nbsp;&nbsp; &nbsp; &nbsp; Reste &agrave; payer; : {{facturation|sub:total|add:paiement }} {{monnaie}}</h6>
+      </div>
+      
+        <table>
+            <thead>
+            <tr>
+            <th>Date</th>
+            <th>Autoris&eacute; Par</th>
+            <th>Num&eacute;ro Fact</th>
+            <th>Num&eacute;ro Paiement</th>
+            <th>Devise</th>
+            <th>Montant Pay&eacute;</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for tab_data in data %}
+                <tr>
+                    <td>
+                        {{ tab_data.datepaie|date:"d-m-Y"  }} 
+                    </td>
+                    <td>
+                      {{ tab_data.name_ordre }} 
+                  </td>
+                    <td>
+                        {{ tab_data.id_declaration__num_fac }} 
+                    </td>
+                    <td>
+                      {{ tab_data.numfact }} 
+                  </td>
+                  <td>
+                    {{ tab_data.id_declaration__monnaie }} 
+                </td>
+                    <td>
+                        {{ tab_data.montpaie }} 
+                    </td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </br></br>
+        
+      <div style="text-align: right;">
+        <h6>Total Paiment de la periode  : {{paiement}} {{monnaie}}</h6>
+        <h6>Total Pay&eacute; : {{total}} {{monnaie}}</h6>
+        <h6>Reste &agrave; payer; : {{facturation|sub:total|add:paiement|sub:paiement }} {{monnaie}}</h6>
+         </div>
+    </main>
+    <footer>
+    </footer>
+  </body>
+</html> 
+

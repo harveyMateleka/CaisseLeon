@@ -1,0 +1,695 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+
+{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+        <h3 class="page-title">Declaration Licences</h3>
+        
+        </div>
+    </div>
+    </div>
+    
+    <div class="row">
+    <div class="col-md-12">
+    <div class="card">
+    <div class="card-body">
+<h5 class="card-title text-black">Les éléments de la licence</h5>
+<hr>  
+    <form action="#" id="frmadd" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card text-white bg-secondary">
+              <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Date Opération</label>
+                        <div class="cal-icon">
+                            <input type="text" id="datop"   required value="{% now 'Y-m-d' %}" class="form-control datetimepicker" readonly>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Numero Facture</label>
+                        <input type="text" id="numfact"   required name="mode" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Date Facture</label>
+                        <div class="cal-icon">
+                        <input class="form-control datetimepicker" required id="datefac" value="{% now 'Y-m-d' %}" name="dt" type="text">
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                                <label>Fournisseur</label>
+                                <select class="form-control" required name="slct_bq" id="slct_four">
+                                    <option value="-1">Select Fournisseur</option>
+                                    {% for fournisseurs in fournisseur %}
+                                    <option value="{{ fournisseurs.id }}">{{ fournisseurs.name_four }}</option>
+                                    {% endfor %}
+                                
+                                </select>
+                        </div>
+                    </div> 
+                   
+                   
+                   
+                   
+                </div>
+
+                <div class="row"> 
+                    <div class="col-md-3">
+                        <label>Pays Provenance</label>
+                        <div class="form-group">
+                        <select class="form-control" required name="slct_bq" id="slct_pays">
+                            <option value="-1">Select le pays</option>
+                            {% for ligne_pays in pays %}
+                            <option value="{{ ligne_pays.id }}">{{ ligne_pays.name_pays }}</option>
+                            {% endfor %}
+                        
+                        </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>N° Validation:</label>
+                        <input type="text" id="numvalide" required name="numvalide" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Date validité</label>
+                        <div class="cal-icon">
+                        <input class="form-control datetimepicker" required id="datevalid" value="{% now 'Y-m-d' %}" name="datevalid" type="text">
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Date Fin validité</label>
+                        <div class="cal-icon">
+                        <input class="form-control datetimepicker" required id="datefin" value="{% now 'Y-m-d' %}" name="datevalid" type="text">
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Montant Facture</label>
+                        <input type="text" id="txtmont"   required name="txtmont" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Monnaie de Transact</label>
+                        <div class="form-group">
+                        <select class="form-control" required name="slct_devise" id="slct_devise">
+                            <option value="-1">Select la devise</option>
+                            <option value="EURO">EURO</option>
+                            <option value="CDF">CDF</option>
+                            <option value="USD">USD</option>
+                        </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Banque:</label>
+                        <div class="form-group">
+                        <select class="form-control" required name="slct_bq" id="slct_bq">
+                            <option value="-1">Select la Banque</option>
+                            {% for ligne_bq in banque %}
+                            <option value="{{ ligne_bq.id }}">{{ ligne_bq.name_banque }}</option>
+                            {% endfor %}
+                        
+                        </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Poste de Douane d'entrée</label>
+                        <input type="text" id="txtpost"   required name="txtpost" class="form-control">
+                        </div>
+                    </div>
+
+                    {% comment %} <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Type declaration</label>
+                        <input type="text" id="codtype"   required name="codtype" class="form-control">
+                        </div>
+                    </div> {% endcomment %}
+                   
+                    
+                </div>
+                {% comment %} <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                        <label>Sous type declaration</label>
+                        <input type="text" id="soustype"   required name="soustype" class="form-control" maxlength="4">
+                        </div>
+                    </div>
+                   
+                        
+                  
+                              
+                </div> {% endcomment %}
+
+                <div class="row">
+                    
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Mode de Transport</label>
+                            <input type="text" id="mode"   required name="mode" class="form-control">
+                            </div>
+                            </div>
+            </div>
+
+
+              </div>
+            </div>
+        </div>                        
+    </div>
+    {% comment %} <hr> {% endcomment %}
+    {% comment %} <h5 class="card-title text-black">Les éléments Connexes</h5> {% endcomment %}
+
+    {% comment %} <div class="row">
+        <div class="col-sm-4">
+          <div class="card text-white">
+            <div class="card-body">
+               <div class="row">
+                  <div class="col-md-6">
+                  <div class="form-group">
+                  <label style="color: black;">Frais</label>
+                  <input type="text" id="frais" required name="montantsortie" class="form-control">
+                  </div>
+                  </div>
+                  <div class="col-md-6">
+                  <div class="form-group">
+                  <label style="color: black;">Montant:</label>
+                   <input type="text" id="montfrais" required name="montantsortie" class="form-control">
+                  </div>
+                  </div>
+              </div>
+              <div class="row">
+                <button type="button" class="btn btn-primary" id='btnajouter'>Ajouter</button> 
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="card text-white">
+            <div class="card-body">
+              <h5 class="card-title text- black">ligne detaille</h5>
+              <div class="row">
+                  <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-center table-hover datatable" id="tbl_conex">
+                        <thead class="thead-light">
+                        <tr>
+                        <th width="50px">id</th>
+                        <th width="200px">Frais</th>
+                        <th width="100px">Montant</th>
+                        <th width="200px">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                    
+                        </tbody>
+                        </table>
+                        </div>
+                  </div>
+                
+      
+              </div>
+            </div>
+          </div>
+        </div>
+      
+    </div> {% endcomment %}
+    <hr>
+    
+    <div class="row">
+       <div class="text-end mt-4">
+            <button type="submit" class="btn btn-primary" id="btnvalide">Valider</button>
+            <button type="reset" onclick="" class="btn btn-info" >Annuler</button>
+       </div>
+    </div>
+    
+    </form>
+    </div>
+    </div>
+    </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var Montanttotal=0.0;
+        var Montantfrais=0.0;
+        var Montantdetail=0.0;
+
+        $("#slct_four").select2();
+        $("#slct_pays").select2();
+        $("#slct_bq").select2();
+        $("#txtmont").on("input",function (){
+            if (isNaN($("#txtmont").val())) 
+                    {
+                           $("#txtmont").val('');
+                        return false;
+                    }
+        });
+
+        $("#btnannuler").click(function () {
+            $('#tarif').val("");
+            $('#designation').val("");
+            $('#prix').val("");
+            $('#qte').val("");
+            $('#montqte').val("");
+            $("#unite").val("");
+        });
+////________________________________valider licence_____________________________________
+
+$("#btnvalide").click(function () {
+
+    if (verification()) {
+        save_licences();
+    }
+    else{
+        $.toast({
+                                    heading: 'Message',
+                                    text: "Verifiez bien les zones",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+             });
+    }
+    
+});
+
+function save_licences() {
+        $.ajax({
+            url:"{% url 'valide_licence' %}",
+            type:"POST",
+            data:{
+                datop:$("#datop").val(),
+                numvalide:$("#numvalide").val(),
+                banque:$("#slct_bq").val(),
+                poste:$("#txtpost").val(),
+                mode:$("#mode").val(),
+                select_four:$("#slct_four").val(),
+                select_pays:$("#slct_pays").val(),
+                devise:$("#slct_devise").val(),
+                datefin:$("#datefin").val(),
+                montant:parseFloat($("#txtmont").val()),
+                numfact:$("#numfact").val(),
+                datefac:$("#datefac").val(),
+                datevalid:$("#datevalid").val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    window.location.href=("{% url 'declaration' %}"); 
+                }
+              
+            },
+            error:function(data){
+                $.toast({
+                                    heading: 'Message',
+                                    text: "erreur dans la transmission",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+               });
+            }
+        });    
+}
+
+function verification() {
+    if ($('#numvalide').val()!="" && $('#slct_bq').val()!="-1") {
+        if ($('#slct_pays').val()!="-1" && $('#slct_four').val()!="-1" && $('#slct_devise').val()!="-1" && $('#txtmont').val()!="") {
+            if ($('#numfact').val()!="" && $('#datefac').val()!=""  && $('#datevalid').val()!="" && $("#datefin").val()!='') {
+            return true;
+          } 
+        }
+    }
+}
+
+            $("#btnsave").click(function () { 
+                if ($('#tarif').val()!="" && $('#designation').val()!= "" && $('#qte').val()!= "" && $('#prix').val()!="") {
+                    if ($('#montqte').val()!="" && $("#txtmont").val()!="") {
+                        if (parseFloat($('#montqte').val()) > parseFloat($("#txtmont").val())) {
+                                $.toast({
+                                heading: 'Message',
+                                text: "Verifiez bien votre calcul",
+                                position: 'top-right',
+                                loaderBg: '#ff6849',
+                                icon: 'error',
+                                hideAfter: 4000
+                                });
+                       }
+                        else if (parseFloat($('#montqte').val()) == parseFloat($("#txtmont").val())) {
+                            if (Montantfrais >0) {
+                                $.toast({
+                                    heading: 'Message',
+                                    text: "Un depassement au niveau des frais connexe",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+                                    });
+                           }
+                           else {
+                              save_produit() ;
+                           }
+                            
+                        } else {
+                            save_produit();
+                        }
+                        
+                    }   
+                }           
+            });
+
+        $("#montfrais").on("input",function () {
+                if (isNaN($("#montfrais").val())) 
+                    {
+                        $.toast({
+                                    heading: 'Message',
+                                    text: "n'accepte pas de lettre",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                           });
+                           $("#montfrais").val('');
+                        return false;
+                    }
+            });
+
+$("#btnajouter").click(function () {
+if ($("#numvalide").val()!="" && $("#frais").val()!="" && $("#montfrais").val()!="" && $('#txtmont').val()!='') {
+    if (parseFloat($("#montfrais").val()) > 0) {
+        Montantfrais +=parseFloat($("#montfrais").val());
+        if (Montantfrais < parseFloat($("#txtmont").val())) {
+            $.ajax({
+            url:"{% url 'connexe' %}",
+            type:"POST",
+            data:{
+                numvalide:$("#numvalide").val(),
+                frais:$("#frais").val(),
+                montfrais:parseFloat($("#montfrais").val()),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    $('#frais').val("");
+                    $('#montfrais').val("");
+                    formatage($("#numvalide").val());
+                }
+              
+            },
+            error:function(data){
+                alert(data.success);
+            }
+        });
+        }
+        else{
+            $.toast({
+                        heading: 'Message',
+                        text: "les frais connexe ne peuvent pas etre egal ou superieur au Montan de licences",
+                        position: 'top-right',
+                        loaderBg: '#ff6849',
+                        icon: 'error',
+                        hideAfter: 3500
+
+              });
+        }
+    }
+        else{
+            $.toast({
+                        heading: 'Message',
+                        text: "accepte les frais qui contient le montant superieur à 0",
+                        position: 'top-right',
+                        loaderBg: '#ff6849',
+                        icon: 'error',
+                        hideAfter: 3500
+
+              }); 
+        }
+         
+}
+else{
+
+    $.toast({
+                        heading: 'Message',
+                        text: "verifiez bien le zones",
+                        position: 'top-right',
+                        loaderBg: '#ff6849',
+                        icon: 'error',
+                        hideAfter: 3500
+
+    });
+}
+});
+
+if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+    $('body').delegate('.prodedit','click',function(e){
+        var idd=$(this).data('id');
+        Swal.fire({
+        title: 'Do you want to save the changes?',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        denyButtonText: `Don't Delete`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+            url:"{% url 'delproduit' %}",
+            type:"POST",
+            data:{
+                id:idd,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    Montantdetail-=parseFloat(data.montant);
+                    Swal.fire('supprimer!', '', 'success')
+                    formatages(data.data);
+
+                }
+              
+            },
+            error:function(data){
+                Swal.fire('erreur du serveur', '', 'error')
+                //alert(data.success);
+            }
+        });
+            Swal.fire('Saved!', '', 'success')
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info')
+        }
+        })
+    });
+
+$('body').delegate('.edit','click',function(e){
+    var idd=$(this).data('id');
+    Swal.fire({
+        title: 'Voulez vous supprimer ?',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        denyButtonText: `Don't Delete`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+            url:"{% url 'delconnexe' %}",
+            type:"POST",
+            data:{
+                id:idd,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    Montantfrais-=parseFloat(data.montant);
+                    Swal.fire('supprimer!', '', 'success')
+                    formatage(data.data);
+
+                }
+              
+            },
+            error:function(data){
+                Swal.fire('erreur du serveur', '', 'error')
+                //alert(data.success);
+            }
+        });
+            
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info')
+        }
+        })
+  
+});
+        $("#qte, #prix").on('input',function() {
+            if (isNaN($("#qte").val()) || isNaN($("#prix").val()) ) {
+                $("#qte").val('');
+                $("#prix").val('');
+            }
+            else{
+                calcul();
+            }
+            });
+
+    function save_produit() {
+    if ($("#numvalide").val()!="") {
+        Montantdetail+= parseFloat($('#montqte').val());
+        Montanttotal=Montantdetail + Montantfrais;
+        if (Montanttotal <= parseFloat($("#txtmont").val())) {
+            $.ajax({
+            url:"{% url 'detail_prod' %}",
+            type:"POST",
+            data:{
+                tarif:$("#tarif").val(),
+                detail:$("#designation").val(),
+                prix:$("#prix").val(),
+                qte:$("#qte").val(),
+                numvalidate:$("#numvalide").val(),
+                unite:$("#unite").val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                    $('#tarif').val("");
+                    $('#designation').val("");
+                    $('#prix').val("");
+                    $('#qte').val("");
+                    $('#montqte').val("");
+                    $("#unite").val("");
+                    formatages($("#numvalide").val());
+                }
+              
+            },
+            error:function(data){
+                alert(data.success);
+            }
+        });
+        }
+        else{ 
+        }
+    }
+}
+          
+
+
+});
+
+function calcul() {
+    if (parseFloat($("#qte").val()) > 0 && parseFloat($("#prix").val())>0) {
+            var valeur=parseFloat($("#qte").val())*parseFloat($("#prix").val());
+            $('#montqte').val(valeur);
+        }
+        else{
+            return false;
+        }  
+}
+
+function formatage(numero)
+         {
+           var otableau=$('#tbl_conex').DataTable({
+                 "bProcessing":true,
+                 "sAjaxSource":"/decla/getconex/"+numero,
+                 "columns":[
+                     {"data":'id'},
+                     {"data":'type_element'},
+                     {"data":'mont_elem'},
+                     {"data":'id',"autoWidth":true,"render":function (data) {
+                         return '<button data-id='+data+' class="btn btn-warning btn-circle edit" >delete</button>';
+                          }}
+                    
+                 ],
+                 "pageLength": 10, 
+                 "bDestroy":true
+             });
+         
+         }
+         function formatages(numero)
+         {
+             var qte=0.0;
+             var prix=0.0;
+             var Mont=0.0;
+           var otableau=$('#tbl_prod').DataTable({
+                 "bProcessing":true,
+                 "sAjaxSource":"/decla/getdetailprod/"+numero,
+                 "columns":[
+                     {"data":'id'},
+                     {"data":'tarif'},
+                     {"data":'designation'},
+                     {"data":'unit',},
+                     {"data":'qtefour',"autoWidth":true,"render":function (data){
+                        qte=data;
+                        return qte;
+                     }},
+                     {"data":'prix',"autoWidth":true,"render":function (data){
+                        prix=data;
+                        return prix;
+                     }},
+                     {"data":'id',"autoWidth":true,"render":function (data) {
+                        Mont= qte * prix;
+                         return Mont;
+                          }},
+                          {"data":'id',"autoWidth":true,"render":function (data) {
+                            return $("#slct_devise").val();
+                          }},
+                     {"data":'id',"autoWidth":true,"render":function (data) {
+                         return '<button data-id='+data+' class="btn btn-warning btn-circle prodedit" >delete</button>';
+                          }}
+                    
+                 ],
+                 "pageLength": 10, 
+                 "bDestroy":true
+             });
+         
+         }
+</script>
+{% endblock %}

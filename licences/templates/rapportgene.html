@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+ <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+{% endblock %}
+{% block content %}
+
+    <div class="modal custom-modal fade" id="delete_category" role="dialog">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-body">
+<div class="modal-icon text-center mb-3">
+<i class="fas fa-trash-alt text-danger"></i>
+</div>
+<div class="modal-text text-center">
+<h3>Suppression Mouvement </h3>
+    <p>Voulez-vous vraiment supprimer "<label id="lblsup" name="lblsup"></label>" ?</p>
+</div>
+</div>
+<div class="modal-footer text-center">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+<button type="button" id="btnsupression" class="btn btn-primary">Supprimer</button>
+<input type="hidden" id="idmvtsup"/>
+</div>
+</div>
+</div>
+</div>
+<div id="edit_category" class="modal custom-modal fade" role="dialog">
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Modification Mouvement</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+<form action="#" id="frmadd" method="post">
+{% csrf_token %}
+<div class="row">
+<div class="col-md-6">
+<div class="row">
+<div class="col-md-6">
+<div class="form-group">
+<label>Location:</label>
+<select class="select" required name="location" id="location">
+
+    {% for departement in departements %}
+    <option value="{{ departement.id }}">{{ departement.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Référentiel:</label>
+<select class="select" required name="referentiel" id="referentiel">
+
+    {% for referentiel in referentiels %}
+    <option value="{{ referentiel.id }}">{{ referentiel.libelle }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-6">
+
+<div class="form-group">
+<label>Devise:</label>
+    <select class="form-control" name="devise" id="devise">
+
+    <option value="CDF">CDF</option>
+    <option value="USD">USD</option>
+    <option value="EURO">EURO</option>
+    <option value="CFA">CFA</option>
+
+
+</select>
+</div>
+</div>
+    <div class="col-md-6">
+
+<div class="form-group">
+<label>Taux:</label>
+   <input type="text" id="taux" required name="taux" class="form-control">
+
+
+</select>
+</div>
+</div>
+</div>
+
+<div class="form-group">
+<label>Montant:</label>
+<input type="text" id="mtn" required name="mtn" class="form-control">
+<input type="hidden" id="idmvt" name="idmvt"  class="form-control">
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Date:</label>
+<div class="cal-icon">
+<input class="form-control datetimepicker" required id="dt"   name="dt" type="text">
+</div>
+</div>
+<div class="form-group">
+<label>Libelle:</label>
+<textarea rows="5" cols="5" required class="form-control" id="motif" name="motif"></textarea>
+</div>
+<div class="text-end mt-4">
+
+<button type="submit" class="btn btn-primary">Modifier</button>
+</div>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+<div class="page-header">
+    <div class="row">
+    <div class="col-sm-12">
+    <h3 class="page-title">Rapport de Licence</h3>
+    </div>
+    </div>
+    </div>
+    
+    <div class="row">
+    <div class="col-md-12">
+        <div class="card text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card text-black">
+                          <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                    <label style="color: black;">Date debut</label>
+                                    <div class="cal-icon">
+                                        <input class="form-control datetimepicker" required id="date_debut" value="{% now 'Y-m-d' %}" name="dt" type="text">
+                                    </div>
+                                      </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                    <label style="color: black;">Date Fin</label>
+                                    <div class="cal-icon">
+                                    <input class="form-control datetimepicker" required id="date_fin" value="{% now 'Y-m-d' %}" name="dt" type="text">
+                                    </div>
+                                    </div>
+                                </div> 
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <button type="button" class="btn btn-primary" id='btnafficher'>Afficher</button>
+                                    <button type="button" class="btn btn-primary" id='btnimprimer'>Imprimer</button>
+                                </div> 
+                            </div>
+                          </div>
+                        </div>
+                    </div>                        
+                </div>
+
+              <div class="row">
+                  <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-center table-hover datatable" id="tbl_rapport">
+                        <thead class="thead-light">
+                        <tr>
+                        <th width="50px">id</th>
+                        <th width="200px">Date Facture</th>
+                        <th width="200px">Pays</th>
+                        <th width="200px">N° Licences</th>
+                        <th width="200px">Montant</th>
+                        <th width="200px">Montant Payé</th>
+                        <th width="200px">Solde</th>
+                        <th width="200px">Devise</th>
+                        <th width="300px">Fourni.</th>
+                        <th width="200px">Banque.</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          
+                        </tbody>
+                        </table>
+                        </div>
+                  </div>
+                
+      
+              </div>
+            </div>
+          </div>
+    </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+       
+        $("#tbl_consultation").DataTable({
+            "bProcessing":true,
+            "pageLength": 10, 
+            "bDestroy":true 
+        });
+
+        $("#btnimprimer").click(function(){
+            if ($("#date_debut").val()!='' && $("#date_fin").val()!='') {
+                if ($("#date_debut").val() > $("#date_fin").val()) {
+                    $.toast({
+                                    heading: 'Message',
+                                    text: "la date debut doit etre egale ou inferieure à la date fin",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+               });
+                }
+                else{
+                    var locationstring="/declaration/print/"+$("#date_debut").val()+"/"+$("#date_fin").val();
+                    window.location.href=(locationstring);
+                }
+            }
+        });
+
+
+
+        $("#btnafficher").click(function () {
+            if ($("#date_debut").val()=='' && $("#date_fin").val()=='') {
+               
+            }
+            else{
+                if ($("#date_debut").val() > $("#date_fin").val()) {
+                    $.toast({
+                                    heading: 'Message',
+                                    text: "la date debut doit etre egale ou inferieure à la date fin",
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 4000
+               });
+                }
+                else{
+                    afficher($("#date_debut").val(),$("#date_fin").val());
+                }
+            }
+            
+        });
+
+
+
+        if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    } 
+        
+    
+
+
+
+////________________________________valider licence_____________________________________
+
+
+
+
+
+
+
+            
+
+
+
+
+$('body').delegate('.delete','click',function(e){
+    var idd=$(this).data('id');
+    $.ajax({
+            url:"{% url 'deletepaie' %}",
+            type:"POST",
+            data:{
+                id:idd,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                if (data.success=='1') {
+                   
+                }
+            },
+            error:function(data){
+                alert(data.success);
+            }
+        });
+});
+
+}); 
+
+function afficher(params,params2) {
+    var montpay=0.0;
+    var montant=0.0;
+    var locationstring="/declaration/afficher/"+params+"/"+params2;
+    var otableau=$('#tbl_rapport').DataTable({
+                 "bProcessing":true,
+                 "sAjaxSource":locationstring,
+                 "columns":[
+                     {"data":'id'},
+                     {"data":'date_fac'},
+                     {"data":'cod_pays__name_pays'},
+                     {"data":'num_valid'},
+                     {"data":'montantdecl',"autoWidth":true,"render":function (data){
+                        montant=data; 
+                        return montant;
+                     }},
+                     {"data":'montpay',"autoWidth":true,"render":function (data){
+                         if (data) {
+                            montpay=data;
+                            return montpay;
+                         }
+                         else{
+                            return 0; 
+                         }
+                     }},
+                     {"data":'montantdecl',"autoWidth":true,"render":function (data){
+                        return montant - montpay;
+                     }},
+                     {"data":'monnaie',},
+                     {"data":'name_four__name_four',},
+                     {"data":'banque__name_banque',},
+                 ],
+                 "pageLength": 10, 
+                 "bDestroy":true
+             });
+    
+}
+</script>
+{% endblock %}

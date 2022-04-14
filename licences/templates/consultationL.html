@@ -1,0 +1,475 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+ <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+
+{% endblock %}
+{% block content %}
+
+<div class="modal custom-modal fade" id="delete_category" role="dialog">
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Modification Declaration</h5>
+    </div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-12">
+        <div class="card">
+        <div class="card-body">
+    <h5 class="card-title text-black">Les elements de licences</h5>
+    <hr>  
+        <form action="#" id="frmadd" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card text-black">
+                  <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Numero Facture</label>
+                            <input type="text" id="numfact"   required name="mode" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>N° Validation:</label>
+                            <input type="text" id="numvalide" required name="numvalide" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Date Facture</label>
+                            <div class="cal-icon">
+                            <input class="form-control datetimepicker" required id="datefac" value="{% now 'Y-m-d' %}" name="dt" type="text">
+                            </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Date validité</label>
+                            <div class="cal-icon">
+                            <input class="form-control datetimepicker" required id="datevalid" value="{% now 'Y-m-d' %}" name="datevalid" type="text">
+                            </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Date Fin validité</label>
+                            <div class="cal-icon">
+                            <input class="form-control datetimepicker"  id="datefin" value="{% now 'Y-m-d' %}" name="datevalid" type="text">
+                            </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Montant Facture</label>
+                            <input type="text" id="txtmont"   required name="txtmont" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Monnaie de Transact</label>
+                            <div class="form-group">
+                            <select class="form-control" required name="slct_devise" id="slct_devise">
+                                <option value="-1">Select la devise</option>
+                                <option value="EURO">EURO</option>
+                                <option value="CDF">CDF</option>
+                                <option value="USD">USD</option>
+                            </select>
+                            </div>
+                        </div>
+    
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Type declaration</label>
+                            <input type="text" id="codtype"   required name="codtype" class="form-control">
+                            </div>
+                        </div>
+                       
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Sous type declaration</label>
+                            <input type="text" id="soustype"   required name="soustype" class="form-control" maxlength="4">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Banque:</label>
+                            <div class="form-group">
+                            <select class="form-control" required name="slct_bq" id="slct_bq">
+                                <option value="-1">Select la Banque</option>
+                                {% for ligne_bq in banque %}
+                                <option value="{{ ligne_bq.id }}">{{ ligne_bq.name_banque }}</option>
+                                {% endfor %}
+                            
+                            </select>
+                            </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                <label>Fournisseur</label>
+                                <select class="form-control" required name="slct_bq" id="slct_four">
+                                    <option value="-1">Select Fournisseur</option>
+                                    {% for fournisseurs in fournisseur %}
+                                    <option value="{{ fournisseurs.id }}">{{ fournisseurs.name_four }}</option>
+                                    {% endfor %}
+                                
+                                </select>
+                                </div>
+                            </div> 
+                        <div class="col-md-3">
+                            <label>Pays Provenance</label>
+                            <div class="form-group">
+                            <select class="form-control" required name="slct_bq" id="slct_pays">
+                                <option value="-1">Select le pays</option>
+                                {% for ligne_pays in pays %}
+                                <option value="{{ ligne_pays.id }}">{{ ligne_pays.name_pays }}</option>
+                                {% endfor %}
+                            
+                            </select>
+                            </div>
+                        </div>
+                                 
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Poste de Douane d'entrée</label>
+                            <input type="text" id="txtpost"   required name="txtpost" class="form-control">
+                            </div>
+                        </div> 
+                        
+                        <div class="col-md-3">
+                            <div class="form-group">
+                            <label>Mode de Transport</label>
+                            <input type="text" id="mode"   required name="mode" class="form-control">
+                            </div>
+                            </div>
+                </div>
+    
+    
+                  </div>
+                </div>
+            </div>                        
+        </div>
+        <hr>
+        </form>
+        </div>
+        </div>
+        </div>
+        </div>
+
+</div>
+<div class="modal-footer text-right">
+    <button type="button" id="btnupdate" class="btn btn-primary">Modifier</button>
+    <button type="button" id="btnsupression" class="btn btn-primary">Supprimer</button>
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+<input type="hidden" id="idcode" name="" class="form-control">
+
+<input type="hidden" id="idmvtsup"/>
+</div>
+</div>
+</div>
+</div>
+ 
+<div class="page-header">
+    <div class="row">
+    <div class="col-sm-12">
+    <h3 class="page-title">Consultation de Licences</h3>
+    </div>
+    </div>
+    </div>
+    
+    <div class="row">
+    <div class="col-md-12">
+        <div class="card text-white">
+            <div class="card-body">
+              <div class="row">
+                  <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-center table-hover datatable" id="tbl_consultation">
+                        <thead class="thead-light">
+                        <tr>
+                        <th width="50px">id</th>
+                        <th width="200px">N° Facture</th>
+                        <th width="200px">Date Fact</th>
+                        <th width="300px">Fourni.</th>
+                        <th width="200px">Pays</th>
+                        <th width="200px">Montant Fact.</th>
+                        <th width="200px">Mont Payé</th>
+                        <th width="200px">Solde</th>
+                        <th width="200px">Devise</th>
+                        <th width="400px">Action</th>
+                        </tr>
+                        </thead>
+                        {% load mathfilters %}
+                        <tbody>
+                            {% for declarations in declaration %}
+                            <tr>
+                                <td>
+                                    {{ declarations.id }} 
+                                </td>
+                                <td>
+                                    {{ declarations.num_fac }} 
+                                </td>
+                                <td>
+                                    {{ declarations.date_fac|date:"d-m-Y" }} 
+                                </td>
+                                <td>
+                                    {{ declarations.name_four__name_four }} 
+                                </td>
+                                <td>
+                                    {{ declarations.cod_pays__name_pays }} 
+                                </td>
+                                <td>
+                                    {{ declarations.montantdecl }} 
+                                </td>
+                                <td>
+                                    {% if declarations.montpay %}
+                                    {{ declarations.montpay }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                     
+                                </td>
+                                <td>
+                                    {% if declarations.montpay %}
+                                    {{ declarations.montantdecl|sub:declarations.montpay }}
+                                    {% else %}
+                                    {{ declarations.montantdecl }}
+                                    {% endif %}
+                                     
+                                </td>
+                               
+                                <td>
+                                    {{ declarations.monnaie }} 
+                                </td>
+                               
+                                
+                                
+                               
+                                
+                               
+                                <td>
+                                    <button data-id='{{ declarations.id }}' id='{{ declarations.id }}' class="btn btn-primary btn-circle afedit" >Edit</button> 
+                                    <button data-id='{{ declarations.id }}' id='{{ declarations.id }}' class="btn btn-secondary btn-circle print" >Print</button>  
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                        </div>
+                  </div>
+                
+      
+              </div>
+            </div>
+          </div>
+    </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+       
+        $("#tbl_consultation").DataTable({
+            "bProcessing":true,
+            "pageLength": 10, 
+            "bDestroy":true 
+        });
+
+        $("#btnsupression").click(function(){
+            Swal.fire({
+            title: 'voulez vous modifier cette information',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Oui',
+            denyButtonText: `Non`,
+            }).then((result)=>{
+                if (result.isConfirmed) {
+                    $.ajax({
+                    url:"{% url 'delete_licence' %}",
+                    type:"POST",
+                    data:{
+                        id:$("#idcode").val(),
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success:function(data){
+                        if (data.success=='1') {
+                            window.location.href=("{% url 'consultation' %}");   
+                        }  
+                    },
+                    error:function(data){
+                        alert(data.success);
+                    }
+        });
+                } else if(result.isDenied) {
+                    $("#delete_category").modal('hide');
+                }
+
+            });
+        });
+
+      $("#btnupdate").click(function(){
+        if (verification()) {
+            Swal.fire({
+            title: 'voulez vous modifier cette information',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Oui',
+            denyButtonText: `Non`,
+            }).then((result)=>{
+                if (result.isConfirmed) {
+                    $.ajax({
+                    url:"{% url 'update_licence' %}",
+                    type:"POST",
+                    data:{
+                        numvalide:$("#numvalide").val(),
+                        cotype:$("#codtype").val(),
+                        soustype:$("#soustype").val(),
+                        banque:$("#slct_bq").val(),
+                        poste:$("#txtpost").val(),
+                        mode:$("#mode").val(),
+                        select_four:$("#slct_four").val(),
+                        select_pays:$("#slct_pays").val(),
+                        devise:$("#slct_devise").val(),
+                        montant:parseFloat($("#txtmont").val()),
+                        numfact:$("#numfact").val(),
+                        datefac:$("#datefac").val(),
+                        datevalid:$("#datevalid").val(),
+                        datfin:$("#datefin").val(),
+                        idcode:$("#idcode").val(),
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                             },
+                    success:function(data){
+                        if (data.success=='1') {
+                            $("#delete_category").modal('hide');
+                            window.location.href=("{% url 'consultation' %}"); 
+
+                        }
+              
+                     },
+                    error:function(data){
+                        $.toast({
+                                            heading: 'Message',
+                                            text: "erreur dans la transmission",
+                                            position: 'top-right',
+                                            loaderBg: '#ff6849',
+                                            icon: 'error',
+                                            hideAfter: 4000
+                    });
+                    }
+                });
+                }
+                else if (result.isDenied) {
+                    $("#delete_category").modal('hide');
+                }
+            });
+
+
+
+            
+            
+        }
+
+      });
+
+    function verification() {
+    if ($('#numvalide').val()!="" && $('#codtype').val()!="" && $('#soustype').val()!="" && $('#slct_bq').val()!="-1" && $('#txtpost').val()!="") {
+        if ($('#slct_pays').val()!="-1" && $('#slct_four').val()!="-1" && $('#slct_devise').val()!="" && $('#txtmont').val()!="") {
+            if ($('#mode').val()!="" && $('#numfact').val()!="" && $('#datefac').val()!=""  && $('#datevalid').val()!="" && $("#datefin").val()!="") {
+            return true;
+          } 
+        }
+    }
+}
+        
+    
+
+
+
+////________________________________valider licence_____________________________________
+
+
+
+if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+$('body').delegate('.print','click',function(e){ 
+    var idd=$(this).data('id');
+    window.location.href=("/declaration/ligne_print/" + idd);
+});
+
+$('body').delegate('.afedit','click',function(e){
+    var idd=$(this).data('id');
+    $.ajax({
+            url:"{% url 'afficheDeclaration' %}",
+            type:"POST",
+            data:{
+                id:idd,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(data){
+                $("#numvalide").val(data.done[0].num_valid);
+                $("#codtype").val(data.done[0].code_typ_decl);
+                $("#soustype").val(data.done[0].s_typ_decl),
+                $("#slct_bq").val(data.done[0].banque);
+                $("#txtpost").val(data.done[0].poste);
+                $("#mode").val(data.done[0].mode_trans);
+                $("#modalite").val(data.done[0].mode_paie);
+                $("#slct_four").val(data.done[0].name_four);
+                $("#slct_pays").val(data.done[0].cod_pays);
+                $("#slct_devise").val(data.done[0].monnaie);
+                $("#txtmont").val(data.done[0].montantdecl);
+                $("#numfact").val(data.done[0].num_fac);
+                $("#datefac").val(data.done[0].date_fac);
+                $("#datevalid").val(data.done[0].date_valid);
+                $("#idcode").val(idd);
+                $("#datefin").val(data.done[0].datfin);
+
+                $("#delete_category").modal('show');
+            },
+            error:function(data){
+                alert(data.success);
+            }
+        });
+});
+
+});       
+</script>
+{% endblock %}

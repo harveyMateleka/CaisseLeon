@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.13.0.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="fiche" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isFloatColumnFooter="true" uuid="cb2b72a0-3d4c-4330-bc37-38ae3545017a">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="adaptersqlservercaisse"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="177"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="817"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<import value="javax.imageio.ImageIO"/>
+	<import value="org.apache.commons.codec.binary.Base64"/>
+	<subDataset name="locataire" uuid="dba9aae5-cc88-4366-b362-db40fc94d551">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="adaptersqlserverimmo"/>
+		<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="258"/>
+		<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="742"/>
+		<parameter name="contrat" class="java.lang.Integer"/>
+		<parameter name="ddl" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select Modepaiement as modepaie,DebutContrat as datedebut,LoyerMensuel as loyer,
+GarantirLocative as garantie,devise,NomLocataire as nom,
+DesiMaison as denomination,DesiParcelle as COLUMN_8,(select sum(loy-paie) as solde from (select 0 as paie,montant as loy,datefac 
+from facloyer where idcont=$P{contrat}
+union
+
+select montant as paie,0 as loy,datemvt as datefac 
+from mouvement
+where idcontrat=$P{contrat}
+
+) as facture where datefac < CONVERT(datetime, $P{ddl}, 101) )as solde
+ from contrat 
+ inner join locataire on contrat.idloc=locataire.idloc
+ inner join maison on maison.idmaison=contrat.idmaison
+ inner join parcelle on maison.idparc=parcelle.idparc 
+ where contrat.id=$P{contrat}]]>
+		</queryString>
+		<field name="modepaie" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.label" value="modepaie"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="datedebut" class="java.sql.Timestamp">
+			<property name="com.jaspersoft.studio.field.label" value="datedebut"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="loyer" class="java.lang.Double">
+			<property name="com.jaspersoft.studio.field.label" value="loyer"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="garantie" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="garantie"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="devise" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="devise"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_contrat"/>
+		</field>
+		<field name="nom" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="nom"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="locataire"/>
+		</field>
+		<field name="denomination" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="denomination"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_maison"/>
+		</field>
+		<field name="COLUMN_8" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="COLUMN_8"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="immo_parcelle"/>
+		</field>
+		<field name="solde" class="java.lang.Double">
+			<property name="com.jaspersoft.studio.field.label" value="solde"/>
+		</field>
+		<variable name="reporsolde" class="java.lang.Double">
+			<variableExpression><![CDATA[($F{solde}==null)?0:$F{solde}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="dtd" class="java.lang.String"/>
+	<parameter name="dtf" class="java.lang.String"/>
+	<parameter name="departement" class="java.lang.Integer"/>
+	<parameter name="location" class="java.lang.Integer"/>
+	<queryString language="SQL">
+		<![CDATA[select operation_caisse.id,operation_caisse.operation,operation_caisse.lettre,operation_caisse.motif,operation_caisse.DateMvt,operation_caisse.devise,operation_caisse.montant,operation_etatbesoinimage.imagebs,
+operation_userimage.imagebs as imageadmin,last_name,
+ IIF(demandeur IS NULL, demandeurboss, demandeur) as demandeur
+ from 
+ operation_caisse 
+inner join operation_etatbesoinimage on operation_etatbesoinimage.caisse_id=operation_caisse.id
+inner join auth_user on operation_caisse.user_id=auth_user.id
+inner join operation_userimage on operation_caisse.user_id=operation_userimage.user_id
+
+ left outer join operation_etatbesoin on operation_etatbesoin.id=operation_caisse.etatbesoin_id
+ where operation_caisse.DateMvt between  $P{dtd}  and  $P{dtf} and operation_caisse.departement_id= $P{departement}  and operation_caisse.location_id= $P{location} AND operation='E']]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="operation" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="operation"/>
+	</field>
+	<field name="lettre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="lettre"/>
+	</field>
+	<field name="motif" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="motif"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_caisse"/>
+	</field>
+	<field name="DateMvt" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="DateMvt"/>
+	</field>
+	<field name="devise" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="devise"/>
+	</field>
+	<field name="montant" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="montant"/>
+	</field>
+	<field name="imagebs" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imagebs"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_etatbesoinimage"/>
+	</field>
+	<field name="imageadmin" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imageadmin"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_userimage"/>
+	</field>
+	<field name="last_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="last_name"/>
+	</field>
+	<field name="demandeur" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="demandeur"/>
+	</field>
+	<group name="Groupe1" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{id}]]></groupExpression>
+		<groupHeader>
+			<band height="73">
+				<staticText>
+					<reportElement x="77" y="22" width="412" height="21" uuid="cbb6a254-c733-4d0a-a354-7d3d61a40cdb"/>
+					<textElement textAlignment="Center">
+						<font fontName="FontCandara" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[LEON HOTEL | 41,  AV LUAMBO MAKIADI, Kinshasa/gOMBE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="85" y="41" width="412" height="21" uuid="d84ae000-396d-4428-9bdc-3d193591cd83"/>
+					<textElement textAlignment="Center">
+						<font fontName="FontCandara" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[RCCM14-B-2299 ID.NAT. N39710B NIF A0705328A]]></text>
+				</staticText>
+				<line>
+					<reportElement x="43" y="67" width="472" height="1" uuid="5e6705fa-01d2-4c73-946d-a4f3c4022c7c"/>
+				</line>
+				<staticText>
+					<reportElement x="143" y="6" width="280" height="21" uuid="047cc1c2-ab03-4fb4-9cf6-067a9abefb2b"/>
+					<textElement textAlignment="Center">
+						<font fontName="FontCandara" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[MILTEX S.A.R.L.U]]></text>
+				</staticText>
+				<textField pattern="MMMMM dd, yyyy">
+					<reportElement x="437" y="5" width="84" height="22" uuid="d1e625c3-890d-4b09-b9f9-22d23a8037b8"/>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<textField pattern="HH:mm">
+					<reportElement x="516" y="5" width="45" height="22" uuid="8238c5a5-88ac-469b-8bcf-1ad86c17822b"/>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="89">
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				<staticText>
+					<reportElement x="80" y="19" width="290" height="27" uuid="59a861da-5b9b-48ee-abed-58364ba6e87d"/>
+					<textElement textAlignment="Center">
+						<font fontName="Monospaced" size="19" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[BON D'ENTREE CAISSE N°]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="155" y="50" width="70" height="19" backcolor="#E0D8D7" uuid="ce31ea5c-3410-4434-8d96-3c3461d67096"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="SansSerif" size="13" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Montant :]]></text>
+				</staticText>
+				<textField pattern="#,##0.00">
+					<reportElement mode="Transparent" x="231" y="50" width="119" height="19" backcolor="#E0D8D7" uuid="d5b977ec-06b2-4497-a91a-569d3386fa44"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{montant}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="347" y="19" width="64" height="27" uuid="ddc34004-8a04-4663-9e58-2e3d530329e4"/>
+					<textElement textAlignment="Center">
+						<font fontName="Monospaced" size="19" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Transparent" x="350" y="50" width="80" height="19" backcolor="#E0D8D7" uuid="379b9880-b5dd-4064-b7a7-850470a0e0cb"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{devise}]]></textFieldExpression>
+				</textField>
+				<textField pattern="M/d/yyyy">
+					<reportElement mode="Transparent" x="400" y="5" width="113" height="19" backcolor="#E0D8D7" uuid="cfac19b1-231a-4542-8480-b9bdba5ff4d6"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DateMvt}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="20" y="70" width="234" height="19" backcolor="#E0D8D7" uuid="bfffafc5-26f4-47b5-af02-73d71742780b"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Montant accordé (en toutes lettres) :]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true">
+					<reportElement mode="Transparent" x="254" y="70" width="290" height="19" backcolor="#E0D8D7" uuid="23991045-ac71-4c7c-9109-43d882f9fe9f"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{lettre}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="350" y="5" width="50" height="19" backcolor="#E0D8D7" uuid="8d4f4a58-7887-44ad-ba05-acc6cfe37073"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="SansSerif" size="13" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Date :]]></text>
+				</staticText>
+			</band>
+			<band height="71">
+				<staticText>
+					<reportElement mode="Transparent" x="1" y="0" width="120" height="19" backcolor="#E0D8D7" uuid="93d14031-f2e8-43c5-a46e-3dd9eb73f1bc"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Motif de dépense :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="121" y="0" width="432" height="30" backcolor="#E0D8D7" uuid="eeca9218-4ded-4778-a186-ebb1ebdb03d6"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{motif}]]></textFieldExpression>
+				</textField>
+				<rectangle>
+					<reportElement x="11" y="32" width="534" height="35" uuid="0b155dd9-f41c-4f22-8a4e-e0b2e9ca5f4a"/>
+				</rectangle>
+				<staticText>
+					<reportElement mode="Transparent" x="15" y="39" width="100" height="19" backcolor="#E0D8D7" uuid="0cb87350-a2cb-4477-99c4-f438b31597fe"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Depositaire :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="115" y="39" width="429" height="19" backcolor="#E0D8D7" uuid="fe7c6341-47bb-4628-ae3a-f4b46df71d2c"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement verticalAlignment="Justified">
+						<font fontName="Monospaced" size="14" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{demandeur}]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="111">
+				<image>
+					<reportElement mode="Transparent" x="7" y="21" width="133" height="85" backcolor="#FFFFFF" uuid="a89de15f-cdab-4b0e-b488-2705afdafbc6"/>
+					<imageExpression><![CDATA[ImageIO.read(new ByteArrayInputStream(Base64.decodeBase64($F{imageadmin}.getBytes("UTF-8"))))]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement mode="Transparent" x="1" y="0" width="90" height="19" backcolor="#E0D8D7" uuid="f1300a86-52a3-4c30-b983-6ba6bbb87cc8"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Le Caissier(e)]]></text>
+				</staticText>
+				<image>
+					<reportElement x="350" y="20" width="122" height="85" uuid="a8c2686e-f2dc-40bf-95df-00a708e402ba"/>
+					<imageExpression><![CDATA[ImageIO.read(new ByteArrayInputStream(Base64.decodeBase64($F{imagebs}.getBytes("UTF-8"))))]]></imageExpression>
+				</image>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="7" y="69" width="89" height="14" uuid="16ee3cb4-9ee4-41f7-bca7-c0dc8faf6743">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement>
+						<font fontName="Candara" size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{last_name}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="332" y="0" width="214" height="19" backcolor="#E0D8D7" uuid="30243fe3-7c7a-4c8c-b55f-34ddc7436d35"/>
+					<box leftPadding="5">
+						<pen lineWidth="0.0" lineColor="rgba(230, 225, 225, 0.16862746)"/>
+					</box>
+					<textElement>
+						<font fontName="FontCandara" size="12" isBold="true" isUnderline="false"/>
+					</textElement>
+					<text><![CDATA[Bénéficaire ou Mandataire]]></text>
+				</staticText>
+				<frame>
+					<reportElement mode="Transparent" x="3" y="-160" width="552" height="266" backcolor="rgba(217, 215, 215, 0.23137255)" uuid="9af4b912-9b36-41d0-95c0-6fd6b3d908fb"/>
+					<box>
+						<pen lineWidth="1.0"/>
+					</box>
+				</frame>
+			</band>
+		</groupHeader>
+	</group>
+</jasperReport>

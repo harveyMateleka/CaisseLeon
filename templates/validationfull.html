@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+ <style>
+
+        .delete-btn {
+            position: relative;
+        }
+
+        .delete {
+            display: block;
+            color: #dfdfe2;
+            text-decoration: none;
+            position: absolute;
+            background: #EE2D41;
+            font-weight: bold;
+            padding: 0px 3px;
+            border: 1px solid;
+            top: -6px;
+            left: -6px;
+            font-family: Verdana;
+            font-size: 12px;
+        }
+    </style>
+{% endblock %}
+
+
+
+
+
+
+{% block content %}
+{% if request.user.username %}
+<div class="page-header" style="margin-top: 0px">
+<div class="row">
+<div class="col-sm-12">
+    <h3 class="page-title">  <span style="float: right;">LISTE DES ETATS DE BESOINS NON SERVI</span></h3>
+
+</div>
+</div>
+</div>
+
+<div class="row">
+    <div class="col-sm-4">
+        <input type="hidden" id="idmvt" name="idmvt" value="0">
+        <button type="button" id="btnfull" style="color:white" class="btn btn-danger">Retour</button>
+    </div>
+</div>
+    &nbsp;
+<div class="row">
+<div class="col-sm-12">
+    <div class="card card-table">
+    <div class="card-body">
+    <div class="table-responsive">
+    <table class="table table-center table-hover datatable" id="tablo">
+    <thead class="thead-light">
+    <tr>
+    <th width="50px">#</th>
+    <th width="150px">Date</th>
+    <th width="200px">Service</th>
+    <th width="150px">Demandeur</th>
+    <th width="600px">Motif</th>
+    <th width="100px">Devise</th>
+    <th>Total</th>
+    <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+    </table>
+    </div>
+    </div>
+</div>
+</div>
+</div>
+
+
+
+
+
+    {% endif %}
+
+
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.invoice.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+
+{% if request.user.username %}
+
+
+
+    <script>
+
+                  $(document).ready(function() {
+
+
+                    //validation///////////////////////////////////////
+                    //
+                       $('#btnfull').click(function (e) {
+                         e.preventDefault();
+                           window.location.href='{% url 'validation' %}'
+                         
+
+                         });
+
+
+
+                      Swal.fire({
+                              title: 'Entrez votre Pass',
+                              html:'<input type="text" value="{{ request.user.username }}" id="nom" class="swal2-input" placeholder="Nom"><input type="password" id="password" class="swal2-input" placeholder="Password">',
+                              confirmButtonText: 'Valider',
+                              focusConfirm: false,
+                              preConfirm: () => {
+                                    const nom = Swal.getPopup().querySelector('#nom').value
+                                    const password = Swal.getPopup().querySelector('#password').value
+                                    if (!nom || !password) {
+                                      Swal.showValidationMessage('Verifier vos champs')
+                                    }
+                                    return {password: password }
+                                  }
+                              {#input: 'text',#}
+                              {#inputAttributes: {#}
+                              {#  autocapitalize: 'on'#}
+                              {#},#}
+                              {#showCancelButton: true,#}
+                              {#confirmButtonText: 'Ok',#}
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+
+                                  $.ajax({
+                                        url: '{% url 'validation' %}',
+                                    type: 'POST',
+                                     data:{
+                                             'pass':result.value.password,
+                                             'csrfmiddlewaretoken':'{{ csrf_token }}'
+                                     },
+                                    async: true,
+                                    success: function (data) {
+
+                                            if(data.val=='true'){
+                                                 // $('.dataTables_filter').show();
+                                            }else{
+
+                                                Swal.fire({
+                                          title: data.msg,
+                                          confirmButtonText: 'Ok',
+                                        }).then((result) => {
+                                          if (result.isConfirmed) {
+                                           window.location.href='{% url 'check' %}';
+                                          }else{
+                                              window.location.href='{% url 'check' %}';
+                                          }
+                                        })
+
+                                            }
+
+                                    },error:function (data) {
+
+                                                             }
+                        });
+
+
+                              }else{
+                                  window.location.href='{% url "check" %}'
+
+                              }
+                            })
+                    //validation///////////////////////////////////////
+
+
+
+
+
+                      if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+                                      // Select 2
+                      if ($('.select').length > 0) {
+                        $('.select').select2({
+                            //minimumResultsForSearch: -1,
+                            width: '100%'
+                        });
+                    }
+
+                      $(document).on("click", ".open-send", function () {
+                          $('#idmvt').val($(this).data('idete'));
+
+                         Swal.fire({
+                              title: 'Confirmation ?',
+                              text: "Voulez-vous vraiment valider cette Opération",
+                              icon: 'warning',
+                              showCancelButton: true,
+                              confirmButtonColor: '#3085d6',
+                              cancelButtonColor: '#d33',
+                              confirmButtonText: 'Oui',
+                              cancelButtonText: 'Annuler',
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+
+                          $.ajax({
+                    url: '{% url 'sendvalidationfull' %}',
+                    type: 'POST',
+                     data: {
+                        'id': $('#idmvt').val(),
+                         'csrfmiddlewaretoken':'{{ csrf_token }}'
+                  },
+                    async: false,
+                    success: function (data) {
+
+                        if(data.id=="0"){
+                           Swal.fire({
+                                          title: data.msg,
+                                          confirmButtonText: 'Ok',
+                                        }).then((result) => {
+                                          if (result.isConfirmed) {
+                                           window.location.href='{% url 'check' %}';
+                                          }else{
+                                              window.location.href='{% url 'check' %}';
+                                          }
+                                        })
+                        }else{
+                            $.toast({
+                                    heading: 'Message',
+                                    text:data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'success',
+                                    hideAfter: 3500,
+                                    stack: 6
+                                });
+
+                            $('#idmvt').val('0');
+                            affiche();
+
+
+
+                        }
+
+
+
+
+                    },error:function (data) {
+
+                        }
+                    });
+
+                          }
+                            })
+
+
+                    });
+
+
+
+                        $('.datatable').DataTable({
+                               // "bFilter": false,
+                            });
+
+                     affiche();
+
+
+
+                  });
+
+
+
+                   function affiche()
+                      {
+                      try{
+                      tablo=$('#tablo').DataTable({
+                        "order":  [[ 0, "desc" ]],
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'getbesoinvalidationfull' %}",
+                      "columns":[
+                           {"data":'etatbesoin__id'},
+                          {"data":'etatbesoin__datemvt'},
+                          {"data":'etatbesoin__superviseur__departement__libelle'},
+                          {"data":'etatbesoin__demandeur'},
+                          {"data":'etatbesoin__motif'},
+                          {"data":'etatbesoin__devise'},
+
+                          {"data":'multitot'},
+                            {"data":'etatbesoin__id',"render":function (data, type, row, meta){
+
+                                {#return '<a href="#"  data-idete="'+row.etatbesoin__id+'" data-bs-toggle="modal" data-bs-target="#" class="open-send btn btn-sm btn-white text-primary me-2">Envoyer</a><a href="#"   data-idete="'+row.etatbesoin__id+'" data-motif="'+row.etatbesoin__motif+'" data-demandeur="'+row.etatbesoin__demandeur+'" data-devise="'+row.etatbesoin__devise+'" data-date="'+row.etatbesoin__datemvt+'" data-bs-toggle="modal" data-bs-target="#edit_category" class="open-edite btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Modifier</a><a href="#"   data-idete="'+row.etatbesoin__id+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete btn btn-sm btn-white text-danger me-2"><i class="far fa-trash-alt me-1"></i>Supprimer</a>'#}
+                                    if(row.etatbesoin__etat=="R"){//rejet
+                                        return '<a href="#" class="badge badge-pill text-danger me-2">Etat Besoin Refusé</a><a href="#"   data-etat="'+row.etatbesoin__etat+'" data-idete="'+row.etatbesoin__id+'" data-motif="'+row.etatbesoin__motif+'" data-demandeur="'+row.etatbesoin__demandeur+'" data-devise="'+row.etatbesoin__devise+'" data-date="'+row.etatbesoin__datemvt+'" class="open-send btn btn-sm btn-white text-info me-2"><i class="far fa-share-square me-1"></i> Recuperer</a>'
+
+                                    }
+                                    else if((row.etatbesoin__etat=="C") || (row.etatbesoin__etat=="V")){//valider
+                                        return '<a href="#" class="badge badge-pill text-success me-2">Etat Besoin Validé(En Attente à la caisse)</a><a href="#"   data-etat="'+row.etatbesoin__etat+'" data-idete="'+row.etatbesoin__id+'" data-motif="'+row.etatbesoin__motif+'" data-demandeur="'+row.etatbesoin__demandeur+'" data-devise="'+row.etatbesoin__devise+'" data-date="'+row.etatbesoin__datemvt+'" class="open-send btn btn-sm btn-white text-info me-2"><i class="far fa-share-square me-1"></i> Recuperer</a>'
+
+                                    }
+                                    return ''
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){}
+                      }
+    </script>
+
+    {% endif %}
+{% endblock %}
+
+
+
+

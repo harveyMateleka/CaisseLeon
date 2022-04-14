@@ -1,0 +1,382 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+
+{% endblock %}
+{% block content %}
+ <div class="page-header">
+    <div class="row">
+    <div class="col-sm-12">
+    <h3 class="page-title">Référentiel</h3>
+
+    </div>
+    </div>
+    </div>
+<div class="row">
+
+<div class="col-md-12">
+<div class="card card-table">
+<div class="card-header">
+<div class="row">
+<div class="col">
+<h5 class="card-title">Liste Référentiel </h5>
+</div>
+<div class="col-auto">
+<a href="javascript:void(0);" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#add_category">Ajouter un référentiel</a>
+</div>
+</div>
+</div>
+<div class="card-body">
+<div class="table-responsive">
+<table class="table table-striped custom-table mb-0" id="tablo">
+<thead>
+<tr>
+<th>#</th>
+<th>Libelle</th>
+<th>Compte</th>
+<th  >Action</th>
+</tr>
+</thead>
+<tbody>
+
+</tbody>
+</table>
+</div>
+</div>
+ </div>
+</div>
+
+
+</div>
+
+<div id="add_category" class="modal custom-modal fade" role="dialog">
+<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Nouveau Référentiel</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+<form id="frmadd" name="frmadd" method="post" action="#">
+    {% csrf_token %}
+<div class="form-group">
+<label>Libelle <span class="text-danger">*</span></label>
+<input class="form-control" required type="text" name="libelle" id="libelle">
+</div>
+<div class="form-group">
+<label>Compte <span class="text-danger">*</span></label>
+<input class="form-control" required type="text" name="compte" id="compte">
+</div>
+
+<div class="submit-section">
+<button class="btn btn-primary submit-btn">Ajouter</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+<div id="edit_category" class="modal custom-modal fade" role="dialog">
+<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Modification Référentiel</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+<form id="frmmody" name="frmmody" method="post" action="#">
+    {% csrf_token %}
+<div class="form-group">
+<label>Libelle <span class="text-danger">*</span></label>
+<input class="form-control" required type="text" name="libelle2" id="libelle2">
+<input class="form-control" type="hidden" name="idcat" id="idcat">
+</div>
+<div class="form-group">
+<label>Compte <span class="text-danger">*</span></label>
+<input class="form-control" required type="text" name="compte2" id="compte2">
+</div>
+
+<div class="submit-section">
+<button class="btn btn-primary submit-btn">Modifier</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="modal custom-modal fade" id="delete_category" role="dialog">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-body">
+<div class="modal-icon text-center mb-3">
+<i class="fas fa-trash-alt text-danger"></i>
+</div>
+<div class="modal-text text-center">
+<h3>Suppression référentiel </h3>
+    <p>Voulez-vous vraiment supprimer "<label id="lblsup" name="lblsup"></label>" ?</p>
+</div>
+</div>
+<div class="modal-footer text-center">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+<button type="button" id="btnsupression" class="btn btn-primary">Supprimer</button>
+<input type="hidden" id="idcatsup"/>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+{% endblock %}
+
+
+{% block script %}
+    
+    <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+
+    <script>
+var tablo;
+                  $(document).ready(function() {
+
+                      $('.datatable').DataTable({
+                               // "bFilter": false,
+                            });
+                      affiche();
+
+                      $('#frmadd').submit(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                            url: '{% url 'operation:categorie' %}',
+                        type: 'POST',
+                         data:$(this).serialize(),
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                //addrow(data.idloc,$('#libelle').val(), $('#compte').val(), $('#categorie').val(),'')
+                                $('#libelle').val('');
+                                $('#compte').val('');
+                                $('#idcat').val('');
+                                $('#add_category').click();
+                                affiche();
+
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+                      $('#frmmody').submit(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                        url: '{% url 'operation:categorie' %}',
+                        type: 'POST',
+                         data:$(this).serialize(),
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                $('#libelle2').val('');
+                                $('#compte2').val('');
+                                $('#idcat').val('');
+                                $('#edit_category').click();
+                               affiche();
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+                      $('#btnsupression').click(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                        url: '{% url 'operation:deletecategorie' %}',
+                        type: 'POST',
+                         data: {
+                            'id': $('#idcatsup').val(),
+                             'csrfmiddlewaretoken':'{{ csrf_token }}'
+                      },
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                $('#idcatsup').val('');
+                                $('#lblsup').html('');
+                                $('#delete_category').click();
+                               affiche();
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+                      $(document).on("click", ".open-edite", function () {
+
+                                $('#idcat').val($(this).data('id'));
+                                $('#libelle2').val($(this).data('libelle'));
+                                $('#compte2').val($(this).data('compte'));
+
+                        });
+                      $(document).on("click", ".open-delete", function () {
+
+                                $('#idcatsup').val($(this).data('id'));
+                                $('#lblsup').html($(this).data('libelle'));
+
+
+                        });
+
+
+
+
+
+
+
+                  });
+                    function affiche()
+                      {
+
+                      try{
+                      tablo=$('#tablo').DataTable({
+
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'operation:getcategorie' %}",
+                      "columns":[
+                           {"data":'id'},
+                          {"data":'libelle'},
+                          {"data":'compte'},
+
+                      {#{"data":'typemvt',"render":function (data){#}
+                      {#  if(data=="E"){#}
+                      {#      return '<span class="badge bg-success-light">Entrée</span>'#}
+                      {#  }else if (data=="S"){#}
+                      {#      return '<span class="badge bg-warning-light">Sortie</span>'#}
+                      {#  }else{#}
+                      {#      return '<span class="badge bg-info-light">None</span>'#}
+                      {#  }#}
+                      {#  }},#}
+                          {"data":'id',"render":function (data, type, row, meta){
+
+                                return '<a href="#" data-id="'+row.id+'" data-libelle="'+row.libelle+'" data-compte="'+row.compte+'" data-bs-toggle="modal" data-bs-target="#edit_category" class="open-edite btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Modifier</a><a href="#" data-id="'+row.id+'" data-libelle="'+row.libelle+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete btn btn-sm btn-white text-danger me-2"><i class="far fa-trash-alt me-1"></i>Supprimer</a>'
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){}
+                      }
+                      
+function addrow(idx,libelle,compte,categorie,actionx) {
+                         var data = [{'id': parseInt(idx), 'libelle': libelle, 'compte': compte}];
+
+
+          tablo.row.add(data).draw();
+    {#tablo.row.add( [#}
+    {#        parseInt(idx),#}
+    {#        libelle,#}
+    {#        categorie,#}
+    {#        compte,#}
+    {#        ''#}
+    {#    ] ).draw( false );#}
+}
+    </script>
+
+{% endblock %}

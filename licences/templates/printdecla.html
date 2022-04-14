@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">  
+<style type="text/css">
+    .clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+#date{
+  position: absolute;
+  right: -20px;
+}
+
+a {
+  color: #5D6975;
+  text-decoration: underline;
+}
+
+body {
+  position: relative;
+  width: auto;  
+  height: auto; 
+  margin: 0 auto; 
+  color: #001028;
+  background: #FFFFFF; 
+  font-family: Arial, sans-serif; 
+  font-size: 12px; 
+  font-family: Arial;
+}
+
+header {
+  padding: 0px 0;
+  margin-bottom: 30px;
+}
+
+#logo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#logo img {
+  width: 90px;
+}
+
+h1 {
+  border-top: 1px solid  #5D6975;
+  border-bottom: 1px solid  #5D6975;
+  color: #5D6975;
+  font-size: 2.4em;
+  line-height: 1.4em;
+  font-weight: normal;
+  text-align: center;
+  margin: 0 0 20px 0;
+  background: url(dimension.png);
+}
+
+#project {
+  float: left;
+}
+
+#project span {
+  color: #5D6975;
+  text-align: right;
+  width: 52px;
+  margin-right: 10px;
+  display: inline-block;
+  font-size: 0.8em;
+}
+
+#company {
+  float: right;
+  
+}
+
+#project div,
+#company div {
+  white-space: nowrap;        
+}
+
+th,td {
+  border: 1px solid rgb(90, 89, 89);  
+}
+tr{
+    border:blanchedalmond ;
+}
+
+table {
+  width: 100%;
+}
+
+th,td {
+  height: 40px;
+  padding-top: 0pc;
+  padding-left: 10px;
+  width: 100%;
+  text-align: left;
+}
+
+.center {
+margin: auto;
+width: 60%;
+padding: 60px 20px 10px;
+}
+.alignvar {
+    display: inline;  
+}
+
+#displaydeclaration{
+    border: solid rgb(90, 89, 89);
+    width: 100%;
+    text-align: left;
+}
+
+#notices .notice {
+  color: #5D6975;
+  font-size: 1.2em;
+}
+
+footer {
+  color: #5D6975;
+  width: 100%;
+  height: 30px;
+  position: absolute;
+  bottom: 0;
+  border-top: 1px solid #C1CED9;
+  padding: 8px 0;
+  text-align: center;
+}
+
+</style>
+
+  </head>
+  <body>
+    
+    <header class="clearfix">
+      <div  style="text-align: right;">
+        Kinshasa le, {{dates}} 
+      </div>
+      <div id="company" class="clearfix">
+        <div>MILTEX SARL(CLT2245967)</div>
+        <div>Av DU COMMERCE 71 C/GOMBE,KINSHASA, RDC</div>
+        <div>T&eacute;l: 0819813024; Email: miltextrading@yahoo.fr</div>
+        <div>N N.R.C: 14-B-2299 - N IMPOT: A0705328A</div>
+      </div>
+    </header>
+    <main>
+      <div class="center">
+        <h6 style="text-align: center;justify-content: center;" ><u>Description de la licence</u> </h6> 
+    </div>
+  
+    <table border="0">
+        <thead>
+        <tr>
+        <th>Les elements des Licences</th>
+        <th> Valeur</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Numero Facture :</td>  
+                <td>{{ numerofac }}</td>  
+            </tr>
+            <tr>
+                <td>Numero Licence :</td>  
+                <td>{{ numerovalid }}</td>  
+            </tr>
+            <tr>
+                <td>Date Facture :</td> 
+                <td>{{ datfac|date:"d-m-Y"}}</td>  
+            </tr>
+            <tr>
+                <td>Date validit&eacute;</td>  
+                <td>{{datvalid|date:"d-m-Y"}}</td>  
+            </tr>
+            <tr>
+                <td>Date Fin validit&eacute;:</td>    
+                <td>{{ datvalidfin|date:"d-m-Y" }}</td>
+            </tr>
+            <tr>
+                <td>Montant Facture :</td> 
+                <td>{{ montant }} {{ monnaie }}</td>
+                 
+            </tr>
+            <tr>
+                <td>Banque :</td> 
+                <td>{{ banque }} </td>  
+            </tr>
+            <tr>
+                <td>Fournisseur :</td>  
+                <td>{{ fournisseur }}</td>   
+            </tr>
+            <tr>
+                <td>Pays :</td> 
+                <td>{{ pays }} </td>  
+            </tr>
+            <tr>
+                <td>Type de Licence :</td>  
+                <td>{{ type }}</td>   
+            </tr>
+            <tr>
+                <td>Sous Type de Licence :</td>  
+                <td>{{ s_type }}</td>   
+            </tr>
+        </tbody>
+    </table>
+</br>
+<h4> La Description des Produits</h4>
+        <table>
+            <thead>
+            <tr>
+            <th>Tarif</th>
+            <th>Description</th>
+            <th>Unit&eacute;</th>
+            <th>Quantit&eacute;</th>
+            <th>Prix</th>
+            <th>Montant</th>
+            </tr>
+            </thead>
+            {% load mathfilters %}
+            <tbody>
+                {% for ligne_detail in detail_prod %}
+                <tr>
+                    <td>{{ligne_detail.tarif}}</td> 
+                    <td>{{ligne_detail.designation}}</td> 
+                    <td>{{ligne_detail.unit}}</td> 
+                    <td>{{ligne_detail.qtefour}}</td> 
+                    <td>{{ligne_detail.prix}}</td> 
+                    <td>{{ligne_detail.qtefour|mul:ligne_detail.prix}}</td> 
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+      </br>
+      {% if nbre > 0 %}
+      <h4> Les &eacute;lements Connexes </h4>
+      <table>
+        <thead>
+          <tr>
+          <th>Frais</th>
+          <th>Montant</th>
+          </tr>
+          </thead>
+          <tbody>
+            {% for ligne_ in detail_connexe %}
+            <tr>
+              <td>{{ ligne_.type_element}}</td>
+              <td>{{ ligne_.mont_elem}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+      </table>
+      {% endif %}
+      
+    </main>
+    <footer>
+      
+    </footer>
+  </body>
+</html> 
+

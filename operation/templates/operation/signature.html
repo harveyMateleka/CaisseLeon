@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+ <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/sweetalert2.min.css' %}">
+{% endblock %}
+{% block content %}
+
+
+
+
+<div class="page-header">
+<div class="row">
+<div class="col-sm-12">
+<h3 class="page-title">Signature</h3>
+
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<div class="card" style="background-color: #2f3b49;color:white;">
+<div class="card-body">
+<form action="#" id="frmadd" name="frmadd" method="post">
+{% csrf_token %}
+<textarea style="display:none;" name="sigImageData" id="sigImageData"  rows="20" cols="50"></textarea>
+<input type="hidden" id="idmvt" value="0" name="idmvt"  class="form-control">
+<div class="row" >
+<div class="col-md-6">
+ <div class="form-group">
+<label>Utilisateur:</label>
+<select class="select" required name="utilisateur" id="utilisateur">
+
+    {% for userr in users %}
+    <option value="{{ userr.id }}">{{ userr.username }}</option>
+    {% endfor %}
+
+</select>
+</div>
+</div>
+<div class="col-md-6">
+
+<div class="text-end mt-4" >
+
+<button type="button" style="color:white" class="btn btn-primary" onclick="StartSign()"><span id="btnv" role="status"></span> Valider</button>
+<button type="reset" style="color:white" class="btn btn-warning">Annuler</button>
+ </div>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+    {% include 'operation/listsignature.html' %}
+
+{% endblock %}
+
+
+{% block script %}
+    
+    <script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+        <script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.all.min.js' %}"></script>
+
+    <script type="text/javascript">
+	var imgWidth;
+	var imgHeight;
+	function StartSign()
+	 {
+	    var message = { "firstName": "", "lastName": "", "eMail": "", "location": "", "imageFormat": 1, "imageX": 0, "imageY": 0, "imageTransparency": false, "imageScaling": false, "maxUpScalePercent": 0.0, "rawDataFormat": "ENC", "minSigPoints": 25 };
+		document.addEventListener('SigCaptureWeb_SignResponse', SignResponse, false);
+		var messageData = JSON.stringify(message);
+		var element = document.createElement("SigCaptureWeb_ExtnDataElem");
+		element.setAttribute("SigCaptureWeb_MsgAttribute", messageData);
+		document.documentElement.appendChild(element);
+		var evt = document.createEvent("Events");
+		evt.initEvent("SigCaptureWeb_SignStartEvent", true, false);
+		element.dispatchEvent(evt);
+    }
+	function SignResponse(event)
+	{
+	    var str = event.target.getAttribute("SigCaptureWeb_msgAttri");
+		var obj = JSON.parse(str);
+		SetValues(obj);
+	}
+	function SetValues(objResponse)
+	{
+        var obj = JSON.parse(JSON.stringify(objResponse));
+	    //var ctx = document.getElementById('cnv').getContext('2d');
+
+			if (obj.errorMsg != null && obj.errorMsg!="" && obj.errorMsg!="undefined")
+			{
+
+                Swal.fire({
+                      icon: 'error',
+                      title: 'Informmation',
+                      text: obj.errorMsg
+                    })
+            }
+            else
+			{
+                if (obj.isSigned)
+				{
+
+                     document.frmadd.sigImageData.value= obj.imageData;
+
+
+                     $('#frmadd').submit();
+
+
+
+                }else{
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Informmation',
+                      text: "Signature Obligatoire"
+                    })
+                }
+            }
+    }
+
+
+</script>
+    <script>
+
+                  $(document).ready(function() {
+
+                                      // Select 2
+                    if ($('.select').length > 0) {
+                        $('.select').select2({
+                            //minimumResultsForSearch: -1,
+                            width: '100%'
+                        });
+                    }
+
+                    affiche();
+
+                    // Datetimepicker
+
+                    if($('.datetimepicker').length > 0 ){
+                        $('.datetimepicker').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            icons: {
+                                up: "fas fa-angle-up",
+                                down: "fas fa-angle-down",
+                                next: 'fas fa-angle-right',
+                                previous: 'fas fa-angle-left'
+                            }
+                        });
+	                    }
+
+                    $('#frmadd').submit(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                            url: '{% url 'operation:signature' %}',
+                        type: 'POST',
+                         data:$(this).serialize(),
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+
+                                 $('#idmvt').val('0');
+
+                                affiche();
+
+
+
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+                            alert(data)
+                            }
+                        });
+
+                         });
+
+
+
+                    //updateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+                      $(document).on("click", ".open-edite", function () {
+
+                                $('#idmvt').val($(this).data('id'));
+                                $('#utilisateur').val($(this).data('utilisateur'));
+                                $('#utilisateur').change();
+
+
+
+
+                        });
+                      $(document).on("click", ".open-delete", function () {
+
+                                $('#idmvtsup').val($(this).data('id'));
+                                $('#lblsup').html($(this).data('utilisateur'));
+
+
+                        });
+
+                      $('#btnsupression').click(function (e) {
+                             e.preventDefault();
+
+                             $.ajax({
+                        url: '{% url 'operation:deletesignature' %}',
+                        type: 'POST',
+                         data: {
+                            'id': $('#idmvtsup').val(),
+                             'csrfmiddlewaretoken':'{{ csrf_token }}'
+                      },
+                        async: false,
+                        success: function (data) {
+
+                            if(data.id=="0"){
+                               $.toast({
+                                    heading: 'Message',
+                                    text: data.msg,
+                                    position: 'top-right',
+                                    loaderBg: '#ff6849',
+                                    icon: 'error',
+                                    hideAfter: 3500
+
+                                });
+                            }else{
+                                $.toast({
+                                        heading: 'Message',
+                                        text:data.msg,
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'success',
+                                        hideAfter: 3500,
+                                        stack: 6
+                                    });
+
+                                $('#idmvtsup').val('');
+                                $('#lblsup').html('');
+                                $('#delete_category').click();
+                                affiche();
+
+
+                            }
+
+
+
+
+                        },error:function (data) {
+
+                            }
+                        });
+
+                         });
+
+                    //updateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+
+                  });
+
+                  function affiche()
+                      {
+                      try{
+                      tablo=$('#tablo2').DataTable({
+                        "order":false,
+                      "bProcessing":true,
+                              "autoWidth":true,
+                      "sAjaxSource":"{% url 'operation:getsignature' %}",
+                      "columns":[
+                           {"data":'id'},
+                          {"data":'user__username'},
+
+                          {"data":'id',"render":function (data, type, row, meta){
+
+                                return '<a href="#" data-id="'+row.id+'" data-utilisateur="'+row.user_id+'" class="open-edite btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Modifier</a><a href="#" data-id="'+row.id+'" data-utilisateur="'+row.user__username+'" data-bs-toggle="modal" data-bs-target="#delete_category" class="open-delete btn btn-sm btn-white text-danger me-2"><i class="far fa-trash-alt me-1"></i>Supprimer</a>'
+
+
+    }}
+                      ],
+
+                      "bDestroy":true
+                      });
+
+                      }catch(e){
+
+                      }
+                      }
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.13.0.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="fac" pageWidth="204" pageHeight="841" columnWidth="194" leftMargin="5" rightMargin="5" topMargin="5" bottomMargin="5" isFloatColumnFooter="true" uuid="abb4809c-d518-4823-bcc2-f55d7cef9535">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="adaptersqlservercaisse"/>
+	<property name="com.jaspersoft.studio.unit." value="cm"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<import value="javax.imageio.ImageIO"/>
+	<import value="org.apache.commons.codec.binary.Base64"/>
+	<parameter name="bon" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select operation_caisse.operation,operation_caisse.lettre,operation_caisse.motif,operation_caisse.DateMvt,operation_caisse.devise,operation_caisse.montant,operation_etatbesoinimage.imagebs,
+operation_userimage.imagebs as imageadmin,last_name,
+ IIF(demandeur IS NULL, demandeurboss, demandeur) as demandeur
+ from 
+ operation_caisse 
+inner join operation_etatbesoinimage on operation_etatbesoinimage.caisse_id=operation_caisse.id
+inner join auth_user on operation_caisse.user_id=auth_user.id
+inner join operation_userimage on operation_caisse.user_id=operation_userimage.user_id
+
+ left outer join operation_etatbesoin on operation_etatbesoin.id=operation_caisse.etatbesoin_id
+ where operation_caisse.id=$P{bon}]]>
+	</queryString>
+	<field name="operation" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="operation"/>
+	</field>
+	<field name="lettre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="lettre"/>
+	</field>
+	<field name="motif" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="motif"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_caisse"/>
+	</field>
+	<field name="DateMvt" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="DateMvt"/>
+	</field>
+	<field name="devise" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="devise"/>
+	</field>
+	<field name="montant" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="montant"/>
+	</field>
+	<field name="imagebs" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imagebs"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_etatbesoinimage"/>
+	</field>
+	<field name="imageadmin" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imageadmin"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="operation_userimage"/>
+	</field>
+	<field name="last_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="last_name"/>
+	</field>
+	<field name="demandeur" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="demandeur"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="99" splitType="Stretch">
+			<staticText>
+				<reportElement x="47" y="0" width="100" height="20" uuid="05b4dbcb-cc9f-4acf-a82b-af14126fc423"/>
+				<textElement textAlignment="Center">
+					<font fontName="Candara" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sté MILTEX Sarlu]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="28" width="172" height="20" uuid="b9b80c1a-76d4-498c-bdbc-760a8de296ca"/>
+				<textElement textAlignment="Center">
+					<font fontName="Candara" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Av. du Commerce N°71 C/Gombe]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="9" width="172" height="20" uuid="3b997789-b448-41d4-ba73-42a8da150542"/>
+				<textElement textAlignment="Center">
+					<font fontName="Candara" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CD/KIN/RCCM 14-B-2299]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="18" width="172" height="20" uuid="20f63e1c-0c1b-421b-a4d3-c1e2b2cdc40a"/>
+				<textElement textAlignment="Center">
+					<font fontName="Candara" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ID NAT. N39710B]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="10" y="41" width="172" height="20" uuid="7eadb3e2-1af3-45f0-8ec2-1e0498fbcd39"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Candara" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["BON "+(($F{operation}.equals("S"))?"DE SORTIE":"D'ENTRE")+" CAISSE N°:"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="30" y="61" width="44" height="20" uuid="70013c0a-b808-436d-ae59-0716a68a706f"/>
+				<textElement textAlignment="Center">
+					<font fontName="Candara" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Date Imp.: ]]></text>
+			</staticText>
+			<textField pattern="MMM d, yyyy">
+				<reportElement x="77" y="61" width="64" height="20" uuid="1ad0bb93-b445-497d-af43-8fe33e9b179a"/>
+				<textElement>
+					<font fontName="Candara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="10" y="43" width="172" height="1" uuid="88e5f0a0-0dc0-4bf9-85c4-840579f24520"/>
+			</line>
+			<textField>
+				<reportElement x="138" y="41" width="51" height="20" uuid="f33e7b7c-98a7-4f28-b9e6-0e453612b8cd"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Candara" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{bon}]]></textFieldExpression>
+			</textField>
+			<textField pattern="HH:mm">
+				<reportElement x="131" y="61" width="28" height="20" uuid="3f659f16-bfe5-4e6f-93ed-750e8e76e109"/>
+				<textElement>
+					<font fontName="Candara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="9" y="94" width="172" height="1" uuid="9ae6e8a6-ba99-4b48-beb5-3e0fd4e13e86"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="30" y="77" width="44" height="20" uuid="6cf14140-3716-44dc-a05d-e4c8f3f8c5e2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Candara" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Date : ]]></text>
+			</staticText>
+			<textField pattern="M/d/yyyy">
+				<reportElement x="77" y="77" width="54" height="20" uuid="0880efac-e92b-42ee-b686-4d862994fcbf"/>
+				<textElement>
+					<font fontName="Candara"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DateMvt}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="44" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="60" height="24" uuid="6677741a-6ee9-4941-8567-ba98c04075a7"/>
+				<box leftPadding="2"/>
+				<textElement textAlignment="Left">
+					<font fontName="Candara" size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[*Montant:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="60" y="0" width="87" height="24" uuid="46e42fa5-46c8-442e-82ed-9c5b28f79f5b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement>
+					<font fontName="Candara" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{montant}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="24" width="196" height="20" uuid="170715ac-0c39-46c3-8e89-45b04487da7a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement>
+					<font fontName="Candara" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA["( "+$F{lettre} +" )"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="147" y="0" width="47" height="24" uuid="e9ad1de8-c985-44e1-9e33-b792fe8d4d7d">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement>
+					<font fontName="Candara" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{devise}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="66" splitType="Stretch">
+			<frame>
+				<reportElement x="-2" y="4" width="196" height="57" uuid="9689af60-4d84-45ed-8596-b37bf0b87ab8">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+				</reportElement>
+				<staticText>
+					<reportElement x="0" y="0" width="196" height="15" uuid="413358e6-c632-4cb0-b212-d3415b59fdc0"/>
+					<box leftPadding="2"/>
+					<textElement textAlignment="Left">
+						<font fontName="Candara" size="11" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[*Nom Bénéficiaire ou Mandataire:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="0" y="15" width="196" height="14" uuid="9d5ec6e5-b8b8-4fbf-b39f-545aff2f1659">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement>
+						<font fontName="Candara" size="11"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{demandeur}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="0" y="29" width="196" height="14" uuid="584ce6a2-6b92-4685-bedc-59e59535eeb1"/>
+					<box leftPadding="2"/>
+					<textElement textAlignment="Left">
+						<font fontName="Candara" size="11" isBold="true" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[*Motif:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="0" y="43" width="196" height="14" uuid="b45f527c-7b07-4a23-99b2-1ab0d6e1b29d">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement>
+						<font fontName="Candara" size="11"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{motif}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</columnHeader>
+	<columnFooter>
+		<band height="102">
+			<image>
+				<reportElement x="95" y="1" width="102" height="73" uuid="72ce160a-96d8-4566-b750-80891e73f944"/>
+				<imageExpression><![CDATA[ImageIO.read(new ByteArrayInputStream(Base64.decodeBase64($F{imagebs}.getBytes("UTF-8"))))]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="1" y="1" width="94" height="73" uuid="da107820-4013-4c8a-ae7d-a1a4c452a880"/>
+				<imageExpression><![CDATA[ImageIO.read(new ByteArrayInputStream(Base64.decodeBase64($F{imageadmin}.getBytes("UTF-8"))))]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="0" y="0" width="70" height="10" uuid="c6ff7584-8b71-4334-93d2-99a8c8cc2001"/>
+				<box leftPadding="2"/>
+				<textElement textAlignment="Left">
+					<font fontName="Candara" size="7" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Sign. Le caissier (e)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="89" y="1" width="113" height="10" uuid="3b3d5e8f-36e8-44be-af75-2ab0881a2227"/>
+				<box leftPadding="2"/>
+				<textElement textAlignment="Left">
+					<font fontName="Candara" size="7" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Sign. Bénéficiaire ou Mandataire]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="1" y="32" width="89" height="14" uuid="819a00eb-cca7-448e-ba94-cc9506a93d0b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="56e136da-419d-450e-8196-4af3bce5ef4a"/>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement>
+					<font fontName="Candara" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{last_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+</jasperReport>
