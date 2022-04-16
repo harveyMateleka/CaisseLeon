@@ -147,7 +147,7 @@
 
         $("#btnimprimer").click(function(){
             if ($("#date_debut").val()!='' && $("#numlicence").val()!='') {
-                var locationstring="/decla/printextrait/"+ $("#date_debut").val() + "/" + $("#numlicence").val();
+                var locationstring="/licences/decla/printextrait/"+ $("#date_debut").val() + "/" + $("#numlicence").val();
                 window.location.href=(locationstring);
             }
             else{
@@ -273,7 +273,7 @@ $('body').delegate('.delete','click',function(e){
 //}
 
 function afficher(params,params2) {
-    var locationstring="/declaration/afficherextrai/"+params+ "/" + params2;
+    var locationstring="/licences/declaration/afficherextrai/"+params+ "/" + params2;
     var otableau=$('#tbl_extrait').DataTable({
                  "bProcessing":true,
                  "sAjaxSource":locationstring,

@@ -240,7 +240,7 @@
                });
                 }
                 else{
-                    var locationstring="/declaration/print/"+$("#date_debut").val()+"/"+$("#date_fin").val();
+                    var locationstring="/licences/declaration/print/"+$("#date_debut").val()+"/"+$("#date_fin").val();
                     window.location.href=(locationstring);
                 }
             }
@@ -326,7 +326,7 @@ $('body').delegate('.delete','click',function(e){
 function afficher(params,params2) {
     var montpay=0.0;
     var montant=0.0;
-    var locationstring="/declaration/afficher/"+params+"/"+params2;
+    var locationstring="/licences/declaration/afficher/"+params+"/"+params2;
     var otableau=$('#tbl_rapport').DataTable({
                  "bProcessing":true,
                  "sAjaxSource":locationstring,
