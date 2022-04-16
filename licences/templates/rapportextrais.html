@@ -38,20 +38,20 @@
                                 </div> 
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                    <label style="color: black;">Date debut</label>
+                                    <label style="color: black;">Situation du </label>
                                     <div class="cal-icon">
                                         <input class="form-control datetimepicker" required id="date_debut" value="{% now 'Y-m-d' %}" name="dt" type="text">
                                     </div>
                                       </div>
                                 </div>
-                                <div class="col-md-4">
+                                {% comment %} <div class="col-md-4">
                                     <div class="form-group">
                                     <label style="color: black;">Date Fin</label>
                                     <div class="cal-icon">
                                     <input class="form-control datetimepicker" required id="date_fin" value="{% now 'Y-m-d' %}" name="dt" type="text">
                                     </div>
                                     </div>
-                                </div> 
+                                </div>  {% endcomment %}
                             </div>
                             <div class="row">
                                 <div class="col-md-8">
@@ -72,15 +72,14 @@
                         <tr>
                         <th width="50px">id</th>
                         <th width="200px">Date Paie.</th>
-                        <th width="200px">Autorisé par</th>
                         <th width="200px">N° Paiement</th>
-                        <th width="200px">N° Licences</th>
-                        <th width="200px">Devise</th>
                         <th width="200px">Montant</th>
+                        <th width="200px">Devise</th>
+                        <th width="200px">Chargé de Payer</th>
+                        <th width="200px">N° Licences</th>
                         </tr>
                         </thead>
-                        <tbody>
-                          
+                        <tbody> 
                         </tbody>
                         </table>
                         </div>
@@ -117,22 +116,39 @@
             "bDestroy":true 
         });
 
+        //$("#btnimprimer").click(function(){
+            //if ($("#date_debut").val()!='' && $("#date_fin").val()!='' && $("#numlicence").val()!='') {
+               // if ($("#date_debut").val() > $("#date_fin").val()) {
+                    //$.toast({
+                                    //heading: 'Message',
+                                    //text: "la date debut doit etre egale ou inferieure à la date fin",
+                                    //position: 'top-right',
+                                    //loaderBg: '#ff6849',
+                                    //icon: 'error',
+                                    //hideAfter: 4000
+                   //});
+                //}
+                //else{
+                  //  var locationstring="/decla/printextrait/"+ $("#date_debut").val() + "/" + $("#date_fin").val() + "/" + $("#numlicence").val();
+                   // window.location.href=(locationstring);
+                //}
+            //}
+           // else{
+            //    $.toast({
+                                   // heading: 'Message',
+                                    //text: "verifiez bien les zones",
+                                   // position: 'top-right',
+                                    //loaderBg: '#ff6849',
+                                    //icon: 'error',
+                                    //hideAfter: 4000
+                   //});
+            ///}
+        //});
+
         $("#btnimprimer").click(function(){
-            if ($("#date_debut").val()!='' && $("#date_fin").val()!='' && $("#numlicence").val()!='') {
-                if ($("#date_debut").val() > $("#date_fin").val()) {
-                    $.toast({
-                                    heading: 'Message',
-                                    text: "la date debut doit etre egale ou inferieure à la date fin",
-                                    position: 'top-right',
-                                    loaderBg: '#ff6849',
-                                    icon: 'error',
-                                    hideAfter: 4000
-                   });
-                }
-                else{
-                    var locationstring="/decla/printextrait/"+ $("#date_debut").val() + "/" + $("#date_fin").val() + "/" + $("#numlicence").val();
-                    window.location.href=(locationstring);
-                }
+            if ($("#date_debut").val()!='' && $("#numlicence").val()!='') {
+                var locationstring="/decla/printextrait/"+ $("#date_debut").val() + "/" + $("#numlicence").val();
+                window.location.href=(locationstring);
             }
             else{
                 $.toast({
@@ -148,8 +164,37 @@
 
 
 
+        //$("#btnafficher").click(function () {
+            //if ($("#date_debut").val()=='' || $("#date_fin").val()=='' || $("#numlicence").val()=='') {
+                //$.toast({
+                                    //heading: 'Message',
+                                    //text: "verifiez bien les champs",
+                                    //position: 'top-right',
+                                    //loaderBg: '#ff6849',
+                                    //icon: 'error',
+                                    //hideAfter: 4000
+                   //});
+            //}
+            //else{
+                //if ($("#date_debut").val() > $("#date_fin").val()) {
+                    //$.toast({
+                                    //heading: 'Message',
+                                    //text: "la date debut doit etre egale ou inferieure à la date fin",
+                                    //position: 'top-right',
+                                    //loaderBg: '#ff6849',
+                                    //icon: 'error',
+                                    //hideAfter: 4000
+                   //});
+                //}
+                //else{
+                    //afficher($("#date_debut").val(),$("#date_fin").val(),$("#numlicence").val());
+                //}
+            //}
+            
+        //});
+
         $("#btnafficher").click(function () {
-            if ($("#date_debut").val()=='' || $("#date_fin").val()=='' || $("#numlicence").val()=='') {
+            if ($("#date_debut").val()=='' || $("#numlicence").val()=='') {
                 $.toast({
                                     heading: 'Message',
                                     text: "verifiez bien les champs",
@@ -160,19 +205,8 @@
                    });
             }
             else{
-                if ($("#date_debut").val() > $("#date_fin").val()) {
-                    $.toast({
-                                    heading: 'Message',
-                                    text: "la date debut doit etre egale ou inferieure à la date fin",
-                                    position: 'top-right',
-                                    loaderBg: '#ff6849',
-                                    icon: 'error',
-                                    hideAfter: 4000
-                   });
-                }
-                else{
-                    afficher($("#date_debut").val(),$("#date_fin").val(),$("#numlicence").val());
-                }
+                afficher($("#date_debut").val(),$("#numlicence").val());
+               
             }
             
         });
@@ -218,19 +252,39 @@ $('body').delegate('.delete','click',function(e){
 
 }); 
 
-function afficher(params,params2,params3) {
-    var locationstring="/declaration/afficherextrai/"+params+ "/" + params2 + "/" + params3;
+//function afficher(params,params2,params3) {
+    //var locationstring="/declaration/afficherextrai/"+params+ "/" + params2 + "/" + params3;
+    //var otableau=$('#tbl_extrait').DataTable({
+                 //"bProcessing":true,
+                 //"sAjaxSource":locationstring,
+                 //"columns":[
+                     //{"data":'id'},
+                     //{"data":'datepaie'},
+                     //{"data":'name_ordre'},
+                     //{"data":'numfact'},
+                     //{"data":'id_declaration__num_valid'},
+                     //{"data":'id_declaration__monnaie'},
+                     //{"data":'montpaie'},
+                 //],
+                 //"pageLength": 10, 
+                 //"bDestroy":true
+             //});
+    
+//}
+
+function afficher(params,params2) {
+    var locationstring="/declaration/afficherextrai/"+params+ "/" + params2;
     var otableau=$('#tbl_extrait').DataTable({
                  "bProcessing":true,
                  "sAjaxSource":locationstring,
                  "columns":[
                      {"data":'id'},
                      {"data":'datepaie'},
-                     {"data":'name_ordre'},
                      {"data":'numfact'},
-                     {"data":'id_declaration__num_valid'},
-                     {"data":'id_declaration__monnaie'},
                      {"data":'montpaie'},
+                     {"data":'id_declaration__monnaie'},
+                     {"data":'name_ordre'},
+                     {"data":'id_declaration__num_valid'}, 
                  ],
                  "pageLength": 10, 
                  "bDestroy":true

@@ -31,19 +31,13 @@
                 <div class="card text-black">
                   <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                             <label>Numero Facture</label>
                             <input type="text" id="numfact"   required name="mode" class="form-control" readonly>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                            <label>N° Validation:</label>
-                            <input type="text" id="numvalide" required name="numvalide" class="form-control" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                             <label>Date Facture</label>
                             <div class="cal-icon">
@@ -51,32 +45,15 @@
                             </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                            <label>Date validité</label>
-                            <div class="cal-icon">
-                            <input class="form-control datetimepicker" required id="datevalid" value="{% now 'Y-m-d' %}" name="datevalid" type="text">
-                            </div>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                            <label>Date Fin validité</label>
-                            <div class="cal-icon">
-                            <input class="form-control datetimepicker"  id="datefin" value="{% now 'Y-m-d' %}" name="datevalid" type="text">
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                             <label>Montant Facture</label>
                             <input type="text" id="txtmont"   required name="txtmont" class="form-control">
                             </div>
                         </div>
-                        <div class="col-md-3">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
                             <label>Monnaie de Transact</label>
                             <div class="form-group">
                             <select class="form-control" required name="slct_devise" id="slct_devise">
@@ -87,48 +64,59 @@
                             </select>
                             </div>
                         </div>
-    
-                        <div class="col-md-3">
-                            <div class="form-group">
-                            <label>Type declaration</label>
-                            <input type="text" id="codtype"   required name="codtype" class="form-control">
-                            </div>
-                        </div>
-                       
-                        
-                    </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                            <label>Sous type declaration</label>
-                            <input type="text" id="soustype"   required name="soustype" class="form-control" maxlength="4">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label>Banque:</label>
                             <div class="form-group">
-                            <select class="form-control" required name="slct_bq" id="slct_bq">
-                                <option value="-1">Select la Banque</option>
-                                {% for ligne_bq in banque %}
-                                <option value="{{ ligne_bq.id }}">{{ ligne_bq.name_banque }}</option>
+                                <select class="form-control" required name="slct_bq" id="slct_bq">
+                                    <option value="-1">Select la Banque</option>
+                                    {% for ligne_bq in banque %}
+                                    <option value="{{ ligne_bq.id }}">{{ ligne_bq.name_banque }}</option>
+                                    {% endfor %}
+                                
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                            <label>Fournisseur</label>
+                            <select class="form-control" required name="slct_bq" id="slct_four">
+                                <option value="-1">Select Fournisseur</option>
+                                {% for fournisseurs in fournisseur %}
+                                <option value="{{ fournisseurs.id }}">{{ fournisseurs.name_four }}</option>
                                 {% endfor %}
                             
                             </select>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                            <label>N° Validation:</label>
+                            <input type="text" id="numvalide" required name="numvalide" class="form-control" readonly>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                <label>Fournisseur</label>
-                                <select class="form-control" required name="slct_bq" id="slct_four">
-                                    <option value="-1">Select Fournisseur</option>
-                                    {% for fournisseurs in fournisseur %}
-                                    <option value="{{ fournisseurs.id }}">{{ fournisseurs.name_four }}</option>
-                                    {% endfor %}
-                                
-                                </select>
-                                </div>
-                            </div> 
-                        <div class="col-md-3">
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-group">
+                            <label>Date validité</label>
+                            <div class="cal-icon">
+                            <input class="form-control datetimepicker" required id="datevalid" value="{% now 'Y-m-d' %}" name="datevalid" type="text">
+                            </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                            <label>Date Fin validité</label>
+                            <div class="cal-icon">
+                            <input class="form-control datetimepicker"  id="datefin" value="{% now 'Y-m-d' %}" name="datevalid" type="text">
+                            </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
                             <label>Pays Provenance</label>
                             <div class="form-group">
                             <select class="form-control" required name="slct_bq" id="slct_pays">
@@ -140,24 +128,34 @@
                             </select>
                             </div>
                         </div>
-                                 
-                    </div>
-    
-                    <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                             <label>Poste de Douane d'entrée</label>
                             <input type="text" id="txtpost"   required name="txtpost" class="form-control">
                             </div>
                         </div> 
-                        
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                             <label>Mode de Transport</label>
                             <input type="text" id="mode"   required name="mode" class="form-control">
                             </div>
                             </div>
-                </div>
+                        
+                        </div>
+                            <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                            <label>Type declaration</label>
+                            <input type="text" id="codtype"   required name="codtype" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                            <label>Sous type declaration</label>
+                            <input type="text" id="soustype"   required name="soustype" class="form-control" maxlength="4">
+                            </div>
+                        </div>  
+                    </div>
     
     
                   </div>

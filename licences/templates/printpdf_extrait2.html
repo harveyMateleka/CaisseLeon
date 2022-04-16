@@ -135,21 +135,22 @@ footer {
     {% load mathfilters %}
     <main>
         <div class="center">
-            <h6 style="text-align: center;justify-content: center;" ><u>Extraits des operations de Licence du numero {{ numero}} </br> de la Situation du {{ ddebut }}</u> </h6> 
+            <h6 style="text-align: center;justify-content: center;" ><u>Extraits des operations de Licence du numero {{ numero}} </br> de la periode de {{ ddebut }} au {{ dfin }}</u> </h6> 
         </div>
       </br></br>
-      <div style="text-align: left;">  
-        <h6> Num&eacute;ro Fact :{{numfac}} &nbsp;&nbsp; &nbsp; &nbsp; Montant Facturation : {{facturation}} {{monnaie}}  &nbsp;&nbsp; &nbsp; &nbsp; Montant d&eacute;ja Pay&eacute; : {{total}} {{monnaie}}  &nbsp;&nbsp; &nbsp; &nbsp; Reste &agrave; payer; : {{facturation|sub:total }} {{monnaie}}</h6>
+      <div style="text-align: left;"> 
+        <h6> Montant Facturation : {{facturation}} {{monnaie}}  &nbsp;&nbsp; &nbsp; &nbsp; Montant d&eacute;ja Pay&eacute; : {{total|sub:paiement}} {{monnaie}}  &nbsp;&nbsp; &nbsp; &nbsp; Reste &agrave; payer; : {{facturation|sub:total|add:paiement }} {{monnaie}}</h6>
       </div>
       
         <table>
             <thead>
             <tr>
-              <th width="200px">Date Paie.</th>
-              <th width="200px">Num&eacute;ro Paie</th>
-              <th width="200px">Montant</th>
-              <th width="200px">Devise</th>
-              <th width="200px">Chargm&eacute; de Payer</th>
+            <th>Date</th>
+            <th>Autoris&eacute; Par</th>
+            <th>Num&eacute;ro Fact</th>
+            <th>Num&eacute;ro Paiement</th>
+            <th>Devise</th>
+            <th>Montant Pay&eacute;</th>
             </tr>
             </thead>
             <tbody>
@@ -159,17 +160,20 @@ footer {
                         {{ tab_data.datepaie|date:"d-m-Y"  }} 
                     </td>
                     <td>
+                      {{ tab_data.name_ordre }} 
+                  </td>
+                    <td>
+                        {{ tab_data.id_declaration__num_fac }} 
+                    </td>
+                    <td>
                       {{ tab_data.numfact }} 
                   </td>
                   <td>
-                    {{ tab_data.montpaie }} 
+                    {{ tab_data.id_declaration__monnaie }} 
                 </td>
-                <td>
-                  {{ tab_data.id_declaration__monnaie }} 
-                </td>
-                  <td>
-                      {{ tab_data.name_ordre }} 
-                  </td> 
+                    <td>
+                        {{ tab_data.montpaie }} 
+                    </td>
                     
                 </tr>
                 {% endfor %}

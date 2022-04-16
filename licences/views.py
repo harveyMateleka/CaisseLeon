@@ -279,28 +279,38 @@ def printrapport(request,ddebut,dfin):
     pdf=render_to_pdf('printpdf_rapport.html',context)
     return HttpResponse(pdf,content_type='application/pdf')
 
-def afficherextrai(request,ddebut,dfin,num):
+# def afficherextrai(request,ddebut,dfin,num):
+#     tableau={}
+#     result=Declaration.objects.get(num_fac=num)
+#     if result:
+#         resulte=Paiedeclaration.objects.filter(datepaie__range=(ddebut,dfin),id_declaration=result).values('id','datepaie','montpaie','numfact','id_declaration__monnaie','id_declaration__num_valid','id_declaration__num_fac','name_ordre')
+#         tableau=list(resulte)
+#         data={'data':tableau}
+#         return JsonResponse(data,safe=False)
+
+def afficherextrai(request,ddebut,num):
     tableau={}
     result=Declaration.objects.get(num_fac=num)
     if result:
-        resulte=Paiedeclaration.objects.filter(datepaie__range=(ddebut,dfin),id_declaration=result).values('id','datepaie','montpaie','numfact','id_declaration__monnaie','id_declaration__num_valid','id_declaration__num_fac','name_ordre')
+        resulte=Paiedeclaration.objects.filter(datepaie__lte=ddebut,id_declaration=result).values('id','datepaie','montpaie','numfact','id_declaration__monnaie','id_declaration__num_valid','id_declaration__num_fac','name_ordre')
         tableau=list(resulte)
         data={'data':tableau}
         return JsonResponse(data,safe=False)
 
-def printextrait(request,ddebut,dfin,num):
+def printextrait(request,ddebut,num):
     template=get_template('printpdf_extrait.html')
     result=Declaration.objects.get(num_fac=num)
     if result:
-        resulte=Paiedeclaration.objects.filter(datepaie__range=(ddebut,dfin),id_declaration=result).values('datepaie','montpaie','numfact','id_declaration__monnaie','id_declaration__num_valid','id_declaration__num_fac','name_ordre')
-        paiement=Paiedeclaration.objects.filter(datepaie__range=(ddebut,dfin),id_declaration=result).aggregate(total=Sum('montpaie')).get('total')
+        resulte=Paiedeclaration.objects.filter(datepaie__lte=ddebut,id_declaration=result).values('datepaie','montpaie','numfact','id_declaration__monnaie','id_declaration__num_valid','id_declaration__num_fac','name_ordre')
+        paiement=Paiedeclaration.objects.filter(datepaie__lte=ddebut,id_declaration=result).aggregate(total=Sum('montpaie')).get('total')
         if paiement is None:
             paiement=0
         context={
             'data':resulte,
             'numero':result.num_valid,
+            'numfac':result.num_fac,
             'ddebut':datetime.datetime.strptime(ddebut,'%Y-%m-%d').strftime('%d/%m/%Y'),
-            'dfin':datetime.datetime.strptime(dfin,'%Y-%m-%d').strftime('%d/%m/%Y'),
+            #'dfin':datetime.datetime.strptime(dfin,'%Y-%m-%d').strftime('%d/%m/%Y'),
             'total':result.montpay,
             'monnaie':result.monnaie,
             'facturation':result.montantdecl,
@@ -310,6 +320,29 @@ def printextrait(request,ddebut,dfin,num):
         }
         pdf=render_to_pdf('printpdf_extrait.html',context)
         return HttpResponse(pdf,content_type='application/pdf')
+    
+# def printextrait(request,ddebut,dfin,num):
+#     template=get_template('printpdf_extrait.html')
+#     result=Declaration.objects.get(num_fac=num)
+#     if result:
+#         resulte=Paiedeclaration.objects.filter(datepaie__range=(ddebut,dfin),id_declaration=result).values('datepaie','montpaie','numfact','id_declaration__monnaie','id_declaration__num_valid','id_declaration__num_fac','name_ordre')
+#         paiement=Paiedeclaration.objects.filter(datepaie__range=(ddebut,dfin),id_declaration=result).aggregate(total=Sum('montpaie')).get('total')
+#         if paiement is None:
+#             paiement=0
+#         context={
+#             'data':resulte,
+#             'numero':result.num_valid,
+#             'ddebut':datetime.datetime.strptime(ddebut,'%Y-%m-%d').strftime('%d/%m/%Y'),
+#             'dfin':datetime.datetime.strptime(dfin,'%Y-%m-%d').strftime('%d/%m/%Y'),
+#             'total':result.montpay,
+#             'monnaie':result.monnaie,
+#             'facturation':result.montantdecl,
+#             'paiement':paiement,
+#             'today':datetime.datetime.today().strftime('%d/%m/%Y')
+
+#         }
+#         pdf=render_to_pdf('printpdf_extrait.html',context)
+#         return HttpResponse(pdf,content_type='application/pdf')
 
 def afficheDeclaration(request):
     if request.method=='POST' and request.is_ajax():
