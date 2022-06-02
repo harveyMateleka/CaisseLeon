@@ -90,8 +90,11 @@ def valide_licence(request):
 
 def view_paiement(request):
     mode=Mode_paie.objects.all()
+    resultat=Declaration.objects.annotate(diff=F("montantdecl")-F("montpay"))
+    new_resu=resultat.filter(diff__gte=0).values('id','num_valid','num_fac','banque__name_banque','name_four__name_four').order_by('-id')
     context={
-        "mode":mode
+        "mode":mode,
+        "declaration":new_resu
     }
     return render(request,'paiement.html',context)
 
@@ -108,6 +111,7 @@ def save_paiement(request):
                          montpaie=request.POST['Montant'],
                          numfact=request.POST['numfact'],
                          name_ordre=request.POST['charge'],
+                         name_ordrepaie=request.POST['ordre'],
                          code_mode_id=request.POST['mode'],
                         )
                      donnees=request.POST['numvalide'] + '/' + request.POST['numfact']
@@ -134,6 +138,7 @@ def save_paiement(request):
                         montpaie=request.POST['Montant'],
                         numfact=request.POST['numfact'],
                         name_ordre=request.POST['charge'],
+                        name_ordrepaie=request.POST['ordre'],
                         code_mode_id=request.POST['mode']
                     )
                     donnees=request.POST['numvalide'] + '/' + request.POST['numfact']
@@ -179,7 +184,7 @@ def getall_declaration(request):
 
 def getAll_paie(request):
     tableau={}
-    result=Paiedeclaration.objects.all().values('id','id_declaration__monnaie','id_declaration__num_fac','datepaie','montpaie','numfact')
+    result=Paiedeclaration.objects.all().values('id','id_declaration__monnaie','id_declaration__num_fac','datepaie','montpaie','numfact','name_ordrepaie','name_ordre')
     tableau=list(result)
     data={'data':tableau}
     return JsonResponse(data,safe=False)
@@ -230,20 +235,21 @@ def delproduit(request):
 def rapportlicence(request):
     return render(request,'rapportgene.html')
 
-def afficherapport(request,ddebut,dfin):
+def afficherapport(request,ddebut,dfin,devise):
     tableau={}
-    result=Declaration.objects.filter(date_fac__range=(ddebut,dfin)).values('id','num_valid','poste','montantdecl','monnaie','date_fac','cod_pays__name_pays','banque__name_banque','name_four__name_four','montpay').order_by('date_fac')
+    result=Declaration.objects.filter(date_fac__range=(ddebut,dfin),monnaie=devise).values('id','num_valid','num_fac','poste','montantdecl','monnaie','date_fac','cod_pays__name_pays','banque__name_banque','name_four__name_four','montpay').order_by('date_fac')
     tableau=list(result)
     data={'data':tableau}
     return JsonResponse(data,safe=False)
 
 def rapport_extrais(request):
-    return render(request,'rapportextrais.html')
+    context={"declaration":Declaration.objects.all().order_by('-id')}
+    return render(request,'rapportextrais.html',context)
 
-def printrapport(request,ddebut,dfin):
+def printrapport(request,ddebut,dfin,devise):
     template=get_template('printpdf_rapport.html')
     tableau=[]
-    result=Declaration.objects.filter(date_fac__range=(ddebut,dfin))
+    result=Declaration.objects.filter(date_fac__range=(ddebut,dfin),monnaie=devise)
     tableau=result
     Mvt_rapport.objects.all().delete()
     for list_result in result:
@@ -292,7 +298,7 @@ def afficherextrai(request,ddebut,num):
     tableau={}
     result=Declaration.objects.get(num_fac=num)
     if result:
-        resulte=Paiedeclaration.objects.filter(datepaie__lte=ddebut,id_declaration=result).values('id','datepaie','montpaie','numfact','id_declaration__monnaie','id_declaration__num_valid','id_declaration__num_fac','name_ordre')
+        resulte=Paiedeclaration.objects.filter(datepaie__lte=ddebut,id_declaration=result).values('id','id_declaration__monnaie','id_declaration__num_fac','datepaie','montpaie','numfact','name_ordrepaie','name_ordre')
         tableau=list(resulte)
         data={'data':tableau}
         return JsonResponse(data,safe=False)
@@ -383,9 +389,11 @@ def delete_licence(request):
            ligne.delete()
            resul.delete()
         return JsonResponse({"success":"1"},safe=False)
+    
 def ligne_print(request,code):
     template=get_template('printdecla.html')
-    result=Declaration.objects.get(pk=code)
+    codes=int(code)
+    result=Declaration.objects.get(pk=codes)
     if result:
         resu=Element_conx.objects.filter(num_valid=result.num_valid)
         nbre=resu.count()

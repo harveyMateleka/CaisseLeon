@@ -82,6 +82,7 @@ class Paiedeclaration(models.Model):
     montpaie=models.FloatField()
     numfact=models.CharField(max_length=20, unique=True,null=True,blank=True)
     name_ordre=models.CharField(max_length=30,null=True,blank=True)
+    name_ordrepaie=models.CharField(max_length=30,null=True,blank=True)
     code_mode=models.ForeignKey(Mode_paie,on_delete=models.SET_NULL,null=True,blank=True)
 
     def __str__(self):

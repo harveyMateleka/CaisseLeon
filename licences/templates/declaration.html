@@ -56,17 +56,19 @@
                     </div>
 
                     <div class="col-md-3">
+                        <label>Banque:</label>
                         <div class="form-group">
-                                <label>Fournisseur</label>
-                                <select class="form-control" required name="slct_bq" id="slct_four">
-                                    <option value="-1">Select Fournisseur</option>
-                                    {% for fournisseurs in fournisseur %}
-                                    <option value="{{ fournisseurs.id }}">{{ fournisseurs.name_four }}</option>
-                                    {% endfor %}
-                                
-                                </select>
+                        <select class="form-control"  name="slct_bq" id="slct_bq">
+                            <option value="-1">Select la Banque</option>
+                            {% for ligne_bq in banque %}
+                            <option value="{{ ligne_bq.id }}">{{ ligne_bq.name_banque }}</option>
+                            {% endfor %}
+                        
+                        </select>
                         </div>
-                    </div> 
+                    </div>
+
+                   
                    
                    
                    
@@ -74,18 +76,6 @@
                 </div>
 
                 <div class="row"> 
-                    <div class="col-md-3">
-                        <label>Pays Provenance</label>
-                        <div class="form-group">
-                        <select class="form-control" required name="slct_bq" id="slct_pays">
-                            <option value="-1">Select le pays</option>
-                            {% for ligne_pays in pays %}
-                            <option value="{{ ligne_pays.id }}">{{ ligne_pays.name_pays }}</option>
-                            {% endfor %}
-                        
-                        </select>
-                        </div>
-                    </div>
                     <div class="col-md-3">
                         <div class="form-group">
                         <label>N° Validation:</label>
@@ -108,14 +98,15 @@
                         </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
                         <label>Montant Facture</label>
                         <input type="text" id="txtmont"   required name="txtmont" class="form-control">
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                 
                     <div class="col-md-3">
                         <label>Monnaie de Transact</label>
                         <div class="form-group">
@@ -129,12 +120,24 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label>Banque:</label>
                         <div class="form-group">
-                        <select class="form-control" required name="slct_bq" id="slct_bq">
-                            <option value="-1">Select la Banque</option>
-                            {% for ligne_bq in banque %}
-                            <option value="{{ ligne_bq.id }}">{{ ligne_bq.name_banque }}</option>
+                                <label>Fournisseur</label>
+                                <select class="form-control"  name="slct_bq" id="slct_four">
+                                    <option value="-1">Select Fournisseur</option>
+                                    {% for fournisseurs in fournisseur %}
+                                    <option value="{{ fournisseurs.id }}">{{ fournisseurs.name_four }}</option>
+                                    {% endfor %}
+                                
+                                </select>
+                        </div>
+                    </div> 
+                    <div class="col-md-3">
+                        <label>Pays Provenance</label>
+                        <div class="form-group">
+                        <select class="form-control" required name="slct_bq" id="slct_pays">
+                            <option value="-1">Select le pays</option>
+                            {% for ligne_pays in pays %}
+                            <option value="{{ ligne_pays.id }}">{{ ligne_pays.name_pays }}</option>
                             {% endfor %}
                         
                         </select>
@@ -143,7 +146,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                         <label>Poste de Douane d'entrée</label>
-                        <input type="text" id="txtpost"   required name="txtpost" class="form-control">
+                        <input type="text" id="txtpost"    name="txtpost" class="form-control">
                         </div>
                     </div>
 
@@ -174,7 +177,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                             <label>Mode de Transport</label>
-                            <input type="text" id="mode"   required name="mode" class="form-control">
+                            <input type="text" id="mode"   name="mode" class="form-control">
                             </div>
                             </div>
             </div>
@@ -317,17 +320,30 @@ $("#btnvalide").click(function () {
 });
 
 function save_licences() {
+    let banque = null;
+    let fournisseur = null;
+    let pays = null;
+    if($("#slct_bq").val()!='-1'){
+        banque = $("#slct_bq").val();
+    }
+    if($("#slct_pays").val()!='-1'){
+        pays = $("#slct_pays").val();
+    }
+
+    if($("#slct_four").val()!='-1'){
+        fournisseur = $("#slct_four").val();
+    }
         $.ajax({
             url:"{% url 'valide_licence' %}",
             type:"POST",
             data:{
                 datop:$("#datop").val(),
                 numvalide:$("#numvalide").val(),
-                banque:$("#slct_bq").val(),
+                banque:banque,
                 poste:$("#txtpost").val(),
                 mode:$("#mode").val(),
-                select_four:$("#slct_four").val(),
-                select_pays:$("#slct_pays").val(),
+                select_four:fournisseur,
+                select_pays:pays,
                 devise:$("#slct_devise").val(),
                 datefin:$("#datefin").val(),
                 montant:parseFloat($("#txtmont").val()),
@@ -356,50 +372,12 @@ function save_licences() {
 }
 
 function verification() {
-    if ($('#numvalide').val()!="" && $('#slct_bq').val()!="-1") {
-        if ($('#slct_pays').val()!="-1" && $('#slct_four').val()!="-1" && $('#slct_devise').val()!="-1" && $('#txtmont').val()!="") {
-            if ($('#numfact').val()!="" && $('#datefac').val()!=""  && $('#datevalid').val()!="" && $("#datefin").val()!='') {
-            return true;
-          } 
-        }
+    if ($('#slct_devise').val()!="-1" && $('#datefac').val()!="" && $('#datevalid').val()!="" && $("#datefin").val()!='') {
+        return true;
     }
 }
 
-            $("#btnsave").click(function () { 
-                if ($('#tarif').val()!="" && $('#designation').val()!= "" && $('#qte').val()!= "" && $('#prix').val()!="") {
-                    if ($('#montqte').val()!="" && $("#txtmont").val()!="") {
-                        if (parseFloat($('#montqte').val()) > parseFloat($("#txtmont").val())) {
-                                $.toast({
-                                heading: 'Message',
-                                text: "Verifiez bien votre calcul",
-                                position: 'top-right',
-                                loaderBg: '#ff6849',
-                                icon: 'error',
-                                hideAfter: 4000
-                                });
-                       }
-                        else if (parseFloat($('#montqte').val()) == parseFloat($("#txtmont").val())) {
-                            if (Montantfrais >0) {
-                                $.toast({
-                                    heading: 'Message',
-                                    text: "Un depassement au niveau des frais connexe",
-                                    position: 'top-right',
-                                    loaderBg: '#ff6849',
-                                    icon: 'error',
-                                    hideAfter: 4000
-                                    });
-                           }
-                           else {
-                              save_produit() ;
-                           }
-                            
-                        } else {
-                            save_produit();
-                        }
-                        
-                    }   
-                }           
-            });
+
 
         $("#montfrais").on("input",function () {
                 if (isNaN($("#montfrais").val())) 

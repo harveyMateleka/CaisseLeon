@@ -94,7 +94,6 @@
                                                 <th width="100px">Qte</th>
                                                 <th width="200px">Prix</th>
                                                 <th width="200px">Montant</th>
-                                                <th width="100px">Devise</th>
                                                 <th width="200px">Action</th>
                                                 </tr>
                                                 </thead>
@@ -308,13 +307,14 @@ function calcul() {
              var prix=0.0;
              var Mont=0.0;
            var otableau=$('#tbl_prod').DataTable({
+            order:[[0,"DESC"]],
                  "bProcessing":true,
-                 "sAjaxSource":"/decla/getdetailprod/"+numero,
+                 "sAjaxSource":"/licences/decla/getdetailprod/"+numero,
                  "columns":[
                      {"data":'id'},
                      {"data":'tarif'},
                      {"data":'designation'},
-                     {"data":'unit',},
+                     {"data":'unit'},
                      {"data":'qtefour',"autoWidth":true,"render":function (data){
                         qte=data;
                         return qte;
@@ -326,10 +326,8 @@ function calcul() {
                      {"data":'id',"autoWidth":true,"render":function (data) {
                         Mont= qte * prix;
                          return Mont;
-                          }},
-                          {"data":'id',"autoWidth":true,"render":function (data) {
-                            return $("#slct_devise").val();
-                          }},
+                    }},
+                         
                      {"data":'id',"autoWidth":true,"render":function (data) {
                          return '<button data-id='+data+' class="btn btn-warning btn-circle prodedit" >delete</button>';
                           }}

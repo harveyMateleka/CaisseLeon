@@ -10,13 +10,14 @@ from .views import *
 urlpatterns = [
     path('declaration/', views.declaration,name='declaration'),
     path('declaration/connexe', views.connexe,name='connexe'),
+    path('declaration/ligne_print/<str:code>',views.ligne_print),
     path('decla/getconex/<str:con>', views.getconnexe),
     path('decla/getdetailprod/<str:prod>', views.getdetailprod),
-    path('declaration/afficher/<str:ddebut>/<str:dfin>', views.afficherapport),
-    path('declaration/ligne_print/<str:code>',views.ligne_print),
+    path('declaration/afficher/<str:ddebut>/<str:dfin>/<str:devise>', views.afficherapport),
+    
     # path('declaration/afficherextrai/<str:ddebut>/<str:dfin>/<str:num>', views.afficherextrai),
     path('declaration/afficherextrai/<str:ddebut>/<str:num>', views.afficherextrai),
-    path('declaration/print/<str:ddebut>/<str:dfin>', views.printrapport),
+    path('declaration/print/<str:ddebut>/<str:dfin>/<str:devise>', views.printrapport),
     path('declaration/deletecon/',views.delconnexe,name="delconnexe"),
     path('declaration/delproduit/',views.delproduit,name="delproduit"),
     path('declaration/afficheDeclaration/',views.afficheDeclaration,name="afficheDeclaration"),

@@ -32,8 +32,19 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
+                                    <label style="color: black;">Recherche de la Facture</label>
+                                    <select class="form-control"  name="slct_devise" id="recherche">
+                                        <option value="-1">Saisir l'information</option>
+                                        {% for lige_declaration in declaration %}
+                                           <option value="{{lige_declaration.num_fac}}">licence: {{lige_declaration.num_valid}} &nbsp; facture: {{lige_declaration.num_fac}}  </option>
+                                        {% endfor%}
+                                    </select>
+                                      </div>
+                                </div> 
+                                <div class="col-md-4">
+                                    <div class="form-group">
                                     <label style="color: black;">Numero Facture</label>
-                                    <input type="text" id="numlicence" required name="numlicence" class="form-control">
+                                    <input type="text" id="numlicence" required name="numlicence" class="form-control" readonly>
                                     </div>
                                 </div> 
                                 <div class="col-md-4">
@@ -70,13 +81,13 @@
                         <table class="table table-center table-hover datatable" id="tbl_extrait">
                         <thead class="thead-light">
                         <tr>
-                        <th width="50px">id</th>
-                        <th width="200px">Date Paie.</th>
-                        <th width="200px">N° Paiement</th>
-                        <th width="200px">Montant</th>
-                        <th width="200px">Devise</th>
-                        <th width="200px">Chargé de Payer</th>
-                        <th width="200px">N° Licences</th>
+                            <th width="200px">Date Paie</th>
+                            <th width="200px">N° Facture</th>
+                            <th width="200px">N° Paiment</th>
+                            <th width="200px">Montant</th>
+                            <th width="200px">Devise</th>
+                            <th width="200px">Ordre de Paie</th>
+                            <th width="200px">Chagré de Paie</th>
                         </tr>
                         </thead>
                         <tbody> 
@@ -114,6 +125,18 @@
             "bProcessing":true,
             "pageLength": 10, 
             "bDestroy":true 
+        });
+        $('#recherche').select2();
+
+        $('#recherche').on('change', function(){
+            if($('#recherche').val()!='-1'){
+                let numero=$('#recherche').val();
+                //$('#numfacte').val(numero);
+                $("#numlicence").val(numero)
+            }
+            else{
+                $('#numlicence').val("");
+            }
         });
 
         //$("#btnimprimer").click(function(){
@@ -275,16 +298,17 @@ $('body').delegate('.delete','click',function(e){
 function afficher(params,params2) {
     var locationstring="/licences/declaration/afficherextrai/"+params+ "/" + params2;
     var otableau=$('#tbl_extrait').DataTable({
+        order:[[0,"DESC"]],
                  "bProcessing":true,
                  "sAjaxSource":locationstring,
                  "columns":[
-                     {"data":'id'},
                      {"data":'datepaie'},
+                     {"data":'id_declaration__num_fac'},
                      {"data":'numfact'},
                      {"data":'montpaie'},
                      {"data":'id_declaration__monnaie'},
-                     {"data":'name_ordre'},
-                     {"data":'id_declaration__num_valid'}, 
+                     {"data":'name_ordrepaie'},
+                     {"data":'name_ordre'}, 
                  ],
                  "pageLength": 10, 
                  "bDestroy":true

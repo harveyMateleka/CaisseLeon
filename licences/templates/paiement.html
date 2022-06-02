@@ -142,17 +142,28 @@
     <form action="#" id="frmadd" method="post">
     {% csrf_token %}
     <div class="row">
-        <div class="col-sm-10">
+        <div class="col-sm-12">
           <div class="card text-white bg-secondary">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-5">
+                        <label >Recherche la facture</label>
                         <div class="form-group">
-                        <label >N° Facture</label>
-                        <input type="text" id="numlicence" required name="numlicence" class="form-control">
+                            <select class="form-control"  name="slct_devise" id="recherche">
+                                <option value="-1">Saisir l'information</option>
+                                {% for lige_declaration in declaration %}
+                                   <option value="{{lige_declaration.num_fac}}">licence: {{lige_declaration.num_valid}} &nbsp; facture: {{lige_declaration.num_fac}} &nbsp; four: {{lige_declaration.name_four__name_four}} </option>
+                                {% endfor%}
+                            </select>
                         </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                            <label>N° Facture</label>
+                            <input type="text" id="numfacte" required name="numfacte" class="form-control" readonly>
+                            </div>
+                            </div>
+                        <div class="col-md-2">
                             <div class="form-group">
                             <label>N° Paiement</label>
                             <input type="text" id="numfact" required name="numfact" class="form-control">
@@ -166,7 +177,7 @@
                                 </div>
                 </div>
                <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label >Monnaie de Transact</label>
                     <div class="form-group">
                     <select class="form-control"  name="slct_devise" id="slct_dev">
@@ -178,7 +189,7 @@
                     </div>
                 </div>
                 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label >Mode Paiement</label>
                     <div class="form-group">
                     <select class="form-control"  name="slct_mode" id="slct_mode">
@@ -189,7 +200,14 @@
                     </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                    <label >Ordre de Payer</label>
+                    <input type="text" id="ordre" required name="charge" class="form-control">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
                     <div class="form-group">
                     <label >Chargé de Payer</label>
                     <input type="text" id="charge" required name="charge" class="form-control">
@@ -228,6 +246,8 @@
                           <th width="200px">N° Paiment</th>
                           <th width="200px">Montant</th>
                           <th width="200px">Devise</th>
+                          <th width="200px">Ordre de Paie</th>
+                          <th width="200px">Chagré de Paie</th>
                           <th width="200px">Action</th>
                           </tr>
                           </thead>
@@ -268,7 +288,17 @@
     $(document).ready(function() {
         $("slct_mode").select2();
         charger_paiement();
-        $("#slct_dev").select2();
+        $("#slct_dev,#recherche").select2();
+
+        $('#recherche').on('change', function(){
+            if($('#recherche').val()!='-1'){
+                let numero=$('#recherche').val();
+                $('#numfacte').val(numero);
+            }
+            else{
+                $('#numfacte').val("");
+            }
+        });
        
 
         $("#montpaie").on("input",function (){
@@ -280,16 +310,17 @@
         });
         
         $("#btnpaie").click(function () {
-            if ($("#montpaie").val()!='' && $("#numlicence").val()!='' &&  $("#slct_dev").val()!='-1' && $("#numfact").val()!="" && $("#charge").val()!="" && $("#slct_mode").val()!="-1" ) {
+            if ($("#montpaie").val()!='' && $("#numfacte").val()!='' &&  $("#slct_dev").val()!='-1' && $("#numfact").val()!="" && $("#charge").val()!="" && $("#slct_mode").val()!="-1" && $("#montpaie").val()!='') {
                 $.ajax({
                     url:"{% url 'paie_licence' %}",
                     type:"POST",
                     data:{
-                        numvalide:$("#numlicence").val(),
+                        numvalide:$("#numfacte").val(),
                         Montant:parseFloat($("#montpaie").val()),
                         numfact:$("#numfact").val(),
                         mode:$("#slct_mode").val(),
                         charge:$("#charge").val(),
+                        ordre:$("#ordre").val(),
                         csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
             },
             success:function(data){
@@ -298,12 +329,15 @@
                     $("#numlicence").val('');
                     $("#slct_dev").val('-1');
                     $("#numfact").val('');
-                    $("#slct_mode").val()="-1";
+                    $("#slct_mode").val("-1");
                     $("#charge").val('');
+                    $("#montpaie").val('');
+                    $("#numfacte").val('');
+                    $("#recherche").val('-1');
                     charger_paiement();
                     $.toast({
                                     heading: 'Message',
-                                    text: data.msg,
+                                    text:'operation reussie',
                                     position: 'top-right',
                                     loaderBg: '#49ff4f',
                                     icon: 'success',
@@ -420,6 +454,7 @@ $('body').delegate('.delete','click',function(e){
 function charger_paiement()
          {
            var otableau=$('#tbl_paiement').DataTable({
+            order:[[0,"DESC"]],
                  "bProcessing":true,
                  "sAjaxSource":"{% url 'charge_paie' %}",
                  "columns":[
@@ -429,6 +464,8 @@ function charger_paiement()
                      {"data":'numfact'},
                      {"data":'montpaie'},
                      {"data":'id_declaration__monnaie'},
+                     {"data":'name_ordrepaie'},
+                     {"data":'name_ordre'},
                      {"data":'id',"autoWidth":true,"render":function (data) {
                          return '<button data-id='+data+' class="btn btn-warning btn-circle delete" >delete</button>';
                           }}

@@ -203,12 +203,12 @@
                         <th width="50px">id</th>
                         <th width="200px">N° Facture</th>
                         <th width="200px">Date Fact</th>
-                        <th width="300px">Fourni.</th>
-                        <th width="200px">Pays</th>
                         <th width="200px">Montant Fact.</th>
                         <th width="200px">Mont Payé</th>
                         <th width="200px">Solde</th>
                         <th width="200px">Devise</th>
+                        <th width="300px">Fourni.</th>
+                        <th width="200px">Pays</th>
                         <th width="400px">Action</th>
                         </tr>
                         </thead>
@@ -224,12 +224,6 @@
                                 </td>
                                 <td>
                                     {{ declarations.date_fac|date:"d-m-Y" }} 
-                                </td>
-                                <td>
-                                    {{ declarations.name_four__name_four }} 
-                                </td>
-                                <td>
-                                    {{ declarations.cod_pays__name_pays }} 
                                 </td>
                                 <td>
                                     {{ declarations.montantdecl }} 
@@ -250,16 +244,15 @@
                                     {% endif %}
                                      
                                 </td>
-                               
                                 <td>
                                     {{ declarations.monnaie }} 
                                 </td>
-                               
-                                
-                                
-                               
-                                
-                               
+                                <td>
+                                    {{ declarations.name_four__name_four }} 
+                                </td>
+                                <td>
+                                    {{ declarations.cod_pays__name_pays }} 
+                                </td>              
                                 <td>
                                     <button data-id='{{ declarations.id }}' id='{{ declarations.id }}' class="btn btn-primary btn-circle afedit" >Edit</button> 
                                     <button data-id='{{ declarations.id }}' id='{{ declarations.id }}' class="btn btn-secondary btn-circle print" >Print</button>  
@@ -298,9 +291,10 @@
         
        
         $("#tbl_consultation").DataTable({
+            order:[[0,"DESC"]],
             "bProcessing":true,
             "pageLength": 10, 
-            "bDestroy":true 
+            "bDestroy":true
         });
 
         $("#btnsupression").click(function(){
@@ -337,6 +331,20 @@
 
       $("#btnupdate").click(function(){
         if (verification()) {
+            let banque = null;
+            let fournisseur = null;
+            let pays = null;
+            if($("#slct_bq").val()!='-1'){
+                banque = $("#slct_bq").val();
+            }
+            if($("#slct_pays").val()!='-1'){
+                pays = $("#slct_pays").val();
+            }
+        
+            if($("#slct_four").val()!='-1'){
+                fournisseur = $("#slct_four").val();
+            }
+
             Swal.fire({
             title: 'voulez vous modifier cette information',
             showDenyButton: true,
@@ -352,11 +360,11 @@
                         numvalide:$("#numvalide").val(),
                         cotype:$("#codtype").val(),
                         soustype:$("#soustype").val(),
-                        banque:$("#slct_bq").val(),
+                        banque:banque,
                         poste:$("#txtpost").val(),
                         mode:$("#mode").val(),
-                        select_four:$("#slct_four").val(),
-                        select_pays:$("#slct_pays").val(),
+                        select_four:fournisseur,
+                        select_pays:pays,
                         devise:$("#slct_devise").val(),
                         montant:parseFloat($("#txtmont").val()),
                         numfact:$("#numfact").val(),
@@ -400,11 +408,10 @@
       });
 
     function verification() {
-    if ($('#numvalide').val()!="" && $('#codtype').val()!="" && $('#soustype').val()!="" && $('#slct_bq').val()!="-1" && $('#txtpost').val()!="") {
-        if ($('#slct_pays').val()!="-1" && $('#slct_four').val()!="-1" && $('#slct_devise').val()!="" && $('#txtmont').val()!="") {
-            if ($('#mode').val()!="" && $('#numfact').val()!="" && $('#datefac').val()!=""  && $('#datevalid').val()!="" && $("#datefin").val()!="") {
+    if ($('#numvalide').val()!="" && $('#slct_devise').val()!="-1" && $('#numfact').val()!="" && $('#datefac').val()!=""  && $('#datevalid').val()!="" && $("#datefin").val()!="") {
+        if ($('#txtmont').val()!="") {
             return true;
-          } 
+         
         }
     }
 }
@@ -430,7 +437,7 @@ if($('.datetimepicker').length > 0 ){
 	                    }
 $('body').delegate('.print','click',function(e){ 
     var idd=$(this).data('id');
-    window.location.href=("/declaration/ligne_print/" + idd);
+    window.location.href=("/licences/declaration/ligne_print/" + idd);
 });
 
 $('body').delegate('.afedit','click',function(e){

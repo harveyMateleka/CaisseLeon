@@ -143,7 +143,18 @@
                         <div class="card text-black">
                           <div class="card-body">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <label >Monnaie de Transaction</label>
+                                    <div class="form-group">
+                                            <select class="form-control"  name="slct_devise" id="slct_dev">
+                                                <option value="-1">Select la devise</option>
+                                                <option value="EURO">EURO</option>
+                                                <option value="CDF">CDF</option>
+                                                <option value="USD">USD</option>
+                                            </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="form-group">
                                     <label style="color: black;">Date debut</label>
                                     <div class="cal-icon">
@@ -151,11 +162,11 @@
                                     </div>
                                       </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                     <label style="color: black;">Date Fin</label>
                                     <div class="cal-icon">
-                                    <input class="form-control datetimepicker" required id="date_fin" value="{% now 'Y-m-d' %}" name="dt" type="text">
+                                    <input class="form-control datetimepicker" required id="date_fin" value="{% now 'Y-m-d' %}" name="dts" type="text">
                                     </div>
                                     </div>
                                 </div> 
@@ -179,14 +190,16 @@
                         <tr>
                         <th width="50px">id</th>
                         <th width="200px">Date Facture</th>
-                        <th width="200px">Pays</th>
-                        <th width="200px">N° Licences</th>
+                        <th width="200px">Banque.</th>
+                        <th width="200px">N° facture</th>
+                        <th width="200px">N° Licence</th>
                         <th width="200px">Montant</th>
                         <th width="200px">Montant Payé</th>
                         <th width="200px">Solde</th>
                         <th width="200px">Devise</th>
                         <th width="300px">Fourni.</th>
-                        <th width="200px">Banque.</th>
+                        <th width="200px">Pays</th>
+                        
                         </tr>
                         </thead>
                         <tbody>
@@ -219,37 +232,47 @@
 <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        
-       
-        $("#tbl_consultation").DataTable({
-            "bProcessing":true,
-            "pageLength": 10, 
-            "bDestroy":true 
-        });
 
-        $("#btnimprimer").click(function(){
-            if ($("#date_debut").val()!='' && $("#date_fin").val()!='') {
-                if ($("#date_debut").val() > $("#date_fin").val()) {
-                    $.toast({
-                                    heading: 'Message',
-                                    text: "la date debut doit etre egale ou inferieure à la date fin",
-                                    position: 'top-right',
-                                    loaderBg: '#ff6849',
-                                    icon: 'error',
-                                    hideAfter: 4000
-               });
+        if($('.datetimepicker').length > 0 ){
+            $('.datetimepicker').datetimepicker({
+                format: 'YYYY-MM-DD',
+                icons: {
+                    up: "fas fa-angle-up",
+                    down: "fas fa-angle-down",
+                    next: 'fas fa-angle-right',
+                    previous: 'fas fa-angle-left'
                 }
-                else{
-                    var locationstring="/licences/declaration/print/"+$("#date_debut").val()+"/"+$("#date_fin").val();
-                    window.location.href=(locationstring);
+            });
+            } 
+            $('#slct_dev').select2();
+            $("#tbl_consultation").DataTable({
+                order:[[0,"DESC"]],
+                "bProcessing":true,
+                "pageLength": 10, 
+                "bDestroy":true 
+            });
+            $("#btnimprimer").click(function(){
+                if ($("#date_debut").val()!='' && $("#date_fin").val()!='' && $('#slct_dev').val()!='-1') {
+                    if ($("#date_debut").val() > $("#date_fin").val()) {
+                        $.toast({
+                                        heading: 'Message',
+                                        text: "la date debut doit etre egale ou inferieure à la date fin",
+                                        position: 'top-right',
+                                        loaderBg: '#ff6849',
+                                        icon: 'error',
+                                        hideAfter: 4000
+                   });
+                    }
+                    else{
+                        var locationstring="/licences/declaration/print/"+$("#date_debut").val()+"/"+$("#date_fin").val()+"/"+$('#slct_dev').val();
+                        window.location.href=(locationstring);
+                    }
                 }
-            }
-        });
+            });
 
-
-
+            
         $("#btnafficher").click(function () {
-            if ($("#date_debut").val()=='' && $("#date_fin").val()=='') {
+            if ($("#date_debut").val() =='' && $("#date_fin").val() =='' && $('#slct_dev').val()!='-1') {
                
             }
             else{
@@ -264,76 +287,30 @@
                });
                 }
                 else{
-                    afficher($("#date_debut").val(),$("#date_fin").val());
+                    affichers($("#date_debut").val(),$("#date_fin").val(),$('#slct_dev').val());
                 }
             }
             
         });
 
-
-
-        if($('.datetimepicker').length > 0 ){
-                        $('.datetimepicker').datetimepicker({
-                            format: 'YYYY-MM-DD',
-                            icons: {
-                                up: "fas fa-angle-up",
-                                down: "fas fa-angle-down",
-                                next: 'fas fa-angle-right',
-                                previous: 'fas fa-angle-left'
-                            }
-                        });
-	                    } 
+       
         
-    
-
-
-
-////________________________________valider licence_____________________________________
-
-
-
-
-
-
-
-            
-
-
-
-
-$('body').delegate('.delete','click',function(e){
-    var idd=$(this).data('id');
-    $.ajax({
-            url:"{% url 'deletepaie' %}",
-            type:"POST",
-            data:{
-                id:idd,
-                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
-            },
-            success:function(data){
-                if (data.success=='1') {
-                   
-                }
-            },
-            error:function(data){
-                alert(data.success);
-            }
-        });
-});
 
 }); 
 
-function afficher(params,params2) {
+function affichers(params,params2,params3) {
     var montpay=0.0;
     var montant=0.0;
-    var locationstring="/licences/declaration/afficher/"+params+"/"+params2;
+    var locationstring="/licences/declaration/afficher/"+params+"/"+params2+"/"+params3;
     var otableau=$('#tbl_rapport').DataTable({
+                 order:[[0,"DESC"]],
                  "bProcessing":true,
                  "sAjaxSource":locationstring,
                  "columns":[
                      {"data":'id'},
                      {"data":'date_fac'},
-                     {"data":'cod_pays__name_pays'},
+                     {"data":'banque__name_banque',},
+                     {"data":'num_fac'},
                      {"data":'num_valid'},
                      {"data":'montantdecl',"autoWidth":true,"render":function (data){
                         montant=data; 
@@ -353,7 +330,7 @@ function afficher(params,params2) {
                      }},
                      {"data":'monnaie',},
                      {"data":'name_four__name_four',},
-                     {"data":'banque__name_banque',},
+                     {"data":'cod_pays__name_pays'},
                  ],
                  "pageLength": 10, 
                  "bDestroy":true
